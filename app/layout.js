@@ -51,6 +51,9 @@ export const metadata = {
       "max-video-preview": -1,
     },
   },
+  other: {
+    "ppck-ver": "1d1bc63ed90ec8bb734607215eb688c3",
+  },
 };
 
 export const viewport = {
