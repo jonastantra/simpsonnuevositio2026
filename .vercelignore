@@ -1,0 +1,13 @@
+node_modules
+.next
+out
+*.log
+.env*
+.git
+.vercel
+/uploads/
+uploads.zip
+Tema Dragon Ball/
+Entradas-Export-*.csv
+static-preview.*.log
+next-dev.*.log

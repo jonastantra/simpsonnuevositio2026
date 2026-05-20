@@ -1,0 +1,12 @@
+node_modules
+.next
+out
+*.log
+.env*
+.vercel
+/uploads/
+uploads.zip
+Tema Dragon Ball/
+Entradas-Export-*.csv
+
+.vercel
