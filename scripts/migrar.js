@@ -353,13 +353,12 @@ function resolveImage(value) {
     if (local) return local;
   }
 
-  return "";
-}
+  for (const candidate of candidates) {
+    const url = decodeWpGarbage(candidate);
+    if (/^https?:\/\//i.test(url) && isImagePath(url)) return url;
+  }
 
-function fallbackCover(category) {
-  const season = Number(category?.temporada || 0);
-  if (season >= 1 && season <= 36) return `/covers/season-${season}.svg`;
-  return "/covers/default.svg";
+  return "";
 }
 
 function slugify(value) {
@@ -625,7 +624,7 @@ function migrate() {
         temporada: category.temporada,
         numero,
         descripcion,
-        imagen: resolveImage(imagen) || fallbackCover(category),
+        imagen: resolveImage(imagen),
         iframe: players[0]?.embed || "",
         players,
         links,

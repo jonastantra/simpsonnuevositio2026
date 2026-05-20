@@ -5,8 +5,7 @@
   "scripts": {
     "migrar": "node migrar.js",
     "dev": "next dev",
-    "generate-covers": "node scripts/generate-covers.js",
-    "build": "npm run generate-covers && npm run migrar && next build",
+    "build": "npm run migrar && next build",
     "preview": "node scripts/serve-static.js",
     "start": "next start"
   },
