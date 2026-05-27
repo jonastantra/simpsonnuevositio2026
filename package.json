@@ -5,7 +5,7 @@
   "scripts": {
     "migrar": "node migrar.js",
     "dev": "next dev",
-    "build": "npm run migrar && next build",
+    "build": "npm run migrar && next build && node scripts/vercel-static-manifest.js",
     "preview": "node scripts/serve-static.js",
     "start": "next start"
   },
