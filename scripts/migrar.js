@@ -8,6 +8,8 @@ const WP_UPLOADS_DIR = findWpUploadsDir();
 const PUBLIC_UPLOADS_DIR = path.join(ROOT, "public", "uploads");
 
 function findWpUploadsDir() {
+  const restored = path.join(ROOT, "uploadssimpson");
+  if (fs.existsSync(restored)) return restored;
   const nested = path.join(ROOT, "uploads", "uploads");
   if (fs.existsSync(nested)) return nested;
   return path.join(ROOT, "uploads");
