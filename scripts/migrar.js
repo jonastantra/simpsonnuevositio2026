@@ -492,17 +492,17 @@ function cleanEpisodeTitle(titulo) {
 function simpsonsSeoTitle(capitulo) {
   const title = capitulo.tituloLimpio || capitulo.titulo;
   if (capitulo.temporada && capitulo.temporada !== 999) {
-    return `Ver Los Simpsons temporada ${capitulo.temporada} capitulo ${capitulo.numero}: ${title}`;
+    return `Ver Los Simpsons Temporada ${capitulo.temporada} Capitulo ${capitulo.numero}: ${title} Online`;
   }
-  return `${title} | Los Simpsons Online`;
+  return `Ver ${title} Online en Espanol Latino | Los Simpsons`;
 }
 
 function simpsonsSeoDescription(capitulo) {
   const title = capitulo.tituloLimpio || capitulo.titulo;
   if (capitulo.temporada && capitulo.temporada !== 999) {
-    return `Ver Los Simpsons temporada ${capitulo.temporada} capitulo ${capitulo.numero}, ${title}, online en espanol latino. Capitulos completos de Los Simpsons organizados por temporada.`;
+    return `Ver Los Simpsons temporada ${capitulo.temporada} capitulo ${capitulo.numero}, ${title}, online en streaming en espanol latino. Capitulo completo en alta definicion sin cortes.`;
   }
-  return `Ver ${title} online en Los Simpsons Online. Contenido de Springfield, Homer, Bart, Lisa, Marge y la familia Simpson.`;
+  return `Ver ${title} online en streaming en Los Simpsons Online. Contenido de Springfield, Homer, Bart, Lisa, Marge y la familia Simpson en audio latino.`;
 }
 
 function sortCapitulos(items) {

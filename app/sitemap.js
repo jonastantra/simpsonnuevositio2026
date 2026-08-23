@@ -1,5 +1,13 @@
 import capitulos from "@/data/capitulos.json";
-import { absoluteUrl, categoryPages, episodeHref, getLegacyPages, siteUrl, utilityPages } from "@/lib/site";
+import {
+  absoluteUrl,
+  categoryPages,
+  episodeHref,
+  getArticles,
+  getLegacyPages,
+  siteUrl,
+  utilityPages,
+} from "@/lib/site";
 
 export const dynamic = "force-static";
 
@@ -24,6 +32,12 @@ export default function sitemap() {
       lastModified: now,
       changeFrequency: "monthly",
       priority: 0.8,
+    })),
+    ...getArticles().map((article) => ({
+      url: absoluteUrl(article.path),
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.7,
     })),
     ...utilityPages.map((page) => ({
       url: absoluteUrl(page.path),

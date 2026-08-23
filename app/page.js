@@ -1,7 +1,7 @@
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
 import capitulos from "@/data/capitulos.json";
-import { absoluteUrl, episodeHref } from "@/lib/site";
+import { absoluteUrl, episodeHref, getArticles } from "@/lib/site";
 
 export const dynamic = "force-static";
 
@@ -62,6 +62,7 @@ export default function HomePage() {
   const total = capitulos.length;
   const episodes = capitulos.filter((capitulo) => capitulo.temporada && capitulo.temporada !== 999);
   const featured = episodes.filter((capitulo) => capitulo.imagen).slice(0, 6);
+  const articles = getArticles().slice(0, 6);
   const seasons = Array.from({ length: 34 }, (_, index) => seasonSummary(index + 1, episodes))
     .filter((season) => season.count > 0)
     .reverse();
@@ -201,6 +202,35 @@ export default function HomePage() {
           ))}
         </div>
       </section>
+
+      <section className="mx-auto max-w-7xl px-4 pb-16 sm:px-6 lg:px-8">
+        <div className="mb-6 flex items-end justify-between gap-4">
+          <div>
+            <p className="text-sm font-black uppercase text-db-gold">Artículos y guías</p>
+            <h2 className="mt-2 text-3xl font-black text-white">Blog de Los Simpsons</h2>
+          </div>
+          <a href="/blog/" className="focus-ring rounded-md border border-white/10 px-4 py-2 font-bold hover:border-db-gold">
+            Ver todos los artículos
+          </a>
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {articles.map((art) => (
+            <a
+              key={art.slug}
+              href={art.path}
+              className="group flex flex-col justify-between rounded-lg border border-white/10 bg-db-panel p-5 transition hover:-translate-y-1 hover:border-db-gold hover:shadow-glow"
+            >
+              <div>
+                <p className="text-xs font-black uppercase text-db-gold">{art.tags?.[0] || "Blog"} • {art.readTime}</p>
+                <h3 className="mt-2 font-black text-white group-hover:text-db-gold">{art.title}</h3>
+                <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-zinc-400">{art.excerpt}</p>
+              </div>
+              <span className="mt-4 inline-block text-xs font-bold text-db-gold">Leer más →</span>
+            </a>
+          ))}
+        </div>
+      </section>
+
       <SiteFooter />
     </main>
   );

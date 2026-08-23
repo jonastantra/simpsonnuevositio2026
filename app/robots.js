@@ -15,7 +15,11 @@ export default function robots() {
         allow: "/",
         disallow: ["/buscar/", "/buscar/*", "/*?*"],
       },
+      {
+        userAgent: "Googlebot-Video",
+        allow: "/",
+      },
     ],
-    sitemap: `${siteUrl}/sitemap.xml`,
+    sitemap: [`${siteUrl}/sitemap.xml`, `${siteUrl}/video-sitemap.xml`],
   };
 }

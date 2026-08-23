@@ -91,16 +91,24 @@ export default async function CapituloPage({ params }) {
   const episodeImage = absoluteImageUrl(capitulo.imagen);
   const episodeNumber = capitulo.numero === 9999 ? undefined : capitulo.numero;
 
+  const embedSrc = capitulo.iframe?.match(/src=["']([^"']+)["']/i)?.[1];
+
   const videoSchema = {
     "@context": "https://schema.org",
     "@type": "VideoObject",
-    name: capitulo.tituloLimpio || capitulo.titulo,
-    description: capitulo.seoDescription || capitulo.descripcion || `Ver ${capitulo.titulo} online en Los Simpsons Online.`,
+    name:
+      capitulo.seoTitle ||
+      `Ver Los Simpsons ${capitulo.temporada && capitulo.temporada !== 999 ? `T${capitulo.temporada} E${capitulo.numero}: ` : ""}${capitulo.tituloLimpio || capitulo.titulo} Online Streaming HD`,
+    description:
+      capitulo.seoDescription ||
+      capitulo.descripcion ||
+      `Ver ${capitulo.titulo} online en streaming en espanol latino. Capitulo completo en alta definicion.`,
     thumbnailUrl: [episodeImage],
     uploadDate: "2026-05-19",
-    genre: ["Animacion", "Comedia", "Sitcom"],
+    genre: ["Animacion", "Comedia", "Sitcom", "Streaming"],
     duration: "PT22M",
     inLanguage: "es-MX",
+    isAccessibleForFree: "True",
     partOfSeries: {
       "@type": "TVSeries",
       name: "Los Simpsons",
@@ -117,7 +125,12 @@ export default async function CapituloPage({ params }) {
     actor: ["Homer Simpson", "Marge Simpson", "Bart Simpson", "Lisa Simpson", "Maggie Simpson"],
     creator: "Matt Groening",
     productionCompany: "Fox Broadcasting Company",
-    embedUrl: capitulo.iframe?.match(/src=["']([^"']+)["']/i)?.[1],
+    embedUrl: embedSrc,
+    contentUrl: episodeCanonical,
+    potentialAction: {
+      "@type": "WatchAction",
+      target: episodeCanonical,
+    },
   };
 
   const breadcrumbSchema = {
@@ -163,6 +176,10 @@ export default async function CapituloPage({ params }) {
           name: `Temporada ${capitulo.temporada}`,
         }
       : undefined,
+    potentialAction: {
+      "@type": "WatchAction",
+      target: episodeCanonical,
+    },
   };
 
   return (
