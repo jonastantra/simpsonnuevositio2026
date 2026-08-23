@@ -8,12 +8,25 @@ export default function CategoryView({ category, capitulos }) {
   return (
     <main className="min-h-screen">
       <SiteHeader />
+      <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
+        <nav className="text-sm font-semibold text-zinc-400" aria-label="Breadcrumb">
+          <a className="hover:text-db-gold" href="/">
+            Inicio
+          </a>
+          <span className="mx-2 text-zinc-600">/</span>
+          <a className="hover:text-db-gold" href="/temporadas/">
+            Temporadas
+          </a>
+          <span className="mx-2 text-zinc-600">/</span>
+          <span className="text-zinc-200">{categoryLabel}</span>
+        </nav>
+      </div>
       <section
         id="contenido"
-        className="border-b border-db-gold/40 bg-[radial-gradient(circle_at_20%_20%,rgba(255,217,15,.24),transparent_34%),linear-gradient(135deg,#0b0b0b_0%,#101820_55%,#003b63_100%)] px-4 py-20 text-center sm:px-6 lg:px-8"
+        className="border-b border-db-gold/40 bg-[radial-gradient(circle_at_20%_20%,rgba(255,217,15,.24),transparent_34%),linear-gradient(135deg,#0b0b0b_0%,#101820_55%,#003b63_100%)] px-4 py-16 text-center sm:px-6 lg:px-8"
       >
         <p className="mb-3 text-sm font-black uppercase tracking-wide text-db-gold">
-          Los Simpsons online
+          Los Simpsons Online
         </p>
         <h1 className="site-hero-title mx-auto max-w-5xl text-4xl font-black uppercase text-white sm:text-6xl">
           {category.title}
@@ -22,7 +35,7 @@ export default function CategoryView({ category, capitulos }) {
           {category.description}
         </p>
         <p className="mx-auto mt-3 max-w-2xl text-sm font-bold text-zinc-300">
-          Capitulos completos de {categoryLabel} en espanol latino, ordenados para verlos rapido desde movil.
+          Capitulos completos de {categoryLabel} en espanol latino, ordenados para verlos rapido desde movil y escritorio.
         </p>
       </section>
       <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
@@ -33,7 +46,7 @@ export default function CategoryView({ category, capitulos }) {
             </p>
             <h2 className="mt-2 text-3xl font-black text-white">Listado ordenado</h2>
           </div>
-          <a className="focus-ring rounded-md border border-white/10 px-4 py-2 font-bold" href="/">
+          <a className="focus-ring rounded-md border border-white/10 px-4 py-2 font-bold hover:border-db-gold" href="/">
             Inicio
           </a>
         </div>

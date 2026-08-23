@@ -1,7 +1,7 @@
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
 import capitulos from "@/data/capitulos.json";
-import { episodeHref } from "@/lib/site";
+import { absoluteUrl, episodeHref } from "@/lib/site";
 
 export const dynamic = "force-static";
 
@@ -73,7 +73,7 @@ export default function HomePage() {
     itemListElement: seasons.map((season, index) => ({
       "@type": "ListItem",
       position: index + 1,
-      url: season.href,
+      url: absoluteUrl(season.href),
       name: `Los Simpsons temporada ${season.number}`,
     })),
   };
