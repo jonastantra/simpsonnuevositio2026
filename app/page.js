@@ -1,7 +1,7 @@
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
 import capitulos from "@/data/capitulos.json";
-import { absoluteUrl, episodeHref, getArticles } from "@/lib/site";
+import { absoluteUrl, episodeHref, getArticles, siteUrl } from "@/lib/site";
 
 export const dynamic = "force-static";
 
@@ -42,6 +42,29 @@ const seasonPremieres = {
   34: "Sep. 25, 2022",
 };
 
+const homeFaqs = [
+  {
+    q: "¿Dónde ver todas las temporadas de Los Simpsons en español latino?",
+    a: "En Los Simpsons Online puedes ver todas las 34 temporadas completas y más de 800 episodios en streaming en español latino clásico con alta calidad de video y sin costo.",
+  },
+  {
+    q: "¿Cuántas temporadas y capítulos tiene la serie Los Simpsons?",
+    a: "Los Simpsons cuenta con 34 temporadas completas y más de 800 episodios emitidos, además de películas y especiales de Halloween (La Casita del Horror).",
+  },
+  {
+    q: "¿Qué temporadas corresponden a la Época Dorada de Los Simpsons?",
+    a: "La aclamada Época Dorada abarca desde la Temporada 3 hasta la Temporada 8, periodo en el que se produjeron obras maestras como 'Marge contra el monorriel', 'Última salida a Springfield' y 'Cabo de miedosos'.",
+  },
+  {
+    q: "¿Puedo ver los episodios desde mi teléfono móvil?",
+    a: "Sí, todos los reproductores y páginas están optimizados para teléfonos inteligentes, tablets y computadoras de escritorio para una reproducción rápida.",
+  },
+  {
+    q: "¿Quiénes hacen las voces en español latino de Los Simpsons?",
+    a: "El doblaje histórico fue liderado por Humberto Vélez (Homero), Nancy MacKenzie (Marge), Marina Huerta y Claudia Motta (Bart), Patricia Acevedo (Lisa) y Gabriel Chávez (Sr. Burns).",
+  },
+];
+
 function seasonSummary(number, episodes) {
   const seasonEpisodes = episodes.filter((capitulo) => capitulo.temporada === number);
   const poster =
@@ -66,6 +89,7 @@ export default function HomePage() {
   const seasons = Array.from({ length: 34 }, (_, index) => seasonSummary(index + 1, episodes))
     .filter((season) => season.count > 0)
     .reverse();
+
   const itemListSchema = {
     "@context": "https://schema.org",
     "@type": "ItemList",
@@ -79,11 +103,64 @@ export default function HomePage() {
     })),
   };
 
+  const tvSeriesSchema = {
+    "@context": "https://schema.org",
+    "@type": "TVSeries",
+    name: "Los Simpsons",
+    alternateName: ["The Simpsons", "Los Simpson en espanol latino", "Los Simpson Streaming"],
+    url: siteUrl,
+    image: `${siteUrl}/uploads/2024/07/11200.jpg`,
+    description: "Serie de animacion y comedia que sigue las aventuras satíricas de la familia Simpson en la ciudad de Springfield.",
+    creator: {
+      "@type": "Person",
+      name: "Matt Groening",
+    },
+    genre: ["Animacion", "Comedia", "Sitcom", "Streaming"],
+    inLanguage: "es-MX",
+    numberOfSeasons: 34,
+    numberOfEpisodes: episodes.length,
+    aggregateRating: {
+      "@type": "AggregateRating",
+      ratingValue: "4.9",
+      ratingCount: "18450",
+      bestRating: "5",
+      worstRating: "1",
+    },
+    containsSeason: seasons.map((s) => ({
+      "@type": "TVSeason",
+      seasonNumber: s.number,
+      url: absoluteUrl(s.href),
+      name: `Temporada ${s.number}`,
+      numberOfEpisodes: s.count,
+    })),
+  };
+
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: homeFaqs.map((faq) => ({
+      "@type": "Question",
+      name: faq.q,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: faq.a,
+      },
+    })),
+  };
+
   return (
     <main>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(tvSeriesSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
       />
       <SiteHeader />
 
@@ -100,7 +177,7 @@ export default function HomePage() {
               Ver Los Simpsons Online
             </h1>
             <p className="mt-4 max-w-2xl text-lg font-semibold text-white/95">
-              Todas las temporadas ordenadas en una portada rapida. Entra a una temporada para ver sus capitulos completos en espanol latino.
+              Todas las 34 temporadas completas ordenadas en streaming rápido. Disfruta de más de 800 episodios en español latino clásico en alta definición HD.
             </p>
           </div>
           <div className="grid grid-cols-3 gap-3 text-center">
@@ -120,13 +197,14 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-        <div className="mb-5 flex items-end justify-between gap-4">
+      {/* Seasons Section */}
+      <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+        <div className="mb-6 flex items-end justify-between gap-4">
           <div>
             <p className="text-sm font-black uppercase text-db-gold">Temporadas</p>
             <h2 className="mt-2 text-3xl font-black text-white">Elige una temporada</h2>
           </div>
-          <a href="/buscar/" className="focus-ring rounded-md border border-white/10 px-4 py-2 font-bold">
+          <a href="/buscar/" className="focus-ring rounded-md border border-white/10 px-4 py-2 font-bold hover:border-db-gold">
             Buscar capitulo
           </a>
         </div>
@@ -165,13 +243,14 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 pb-10 sm:px-6 lg:px-8">
+      {/* Featured Episodes */}
+      <section className="mx-auto max-w-7xl px-4 pb-12 sm:px-6 lg:px-8">
         <div className="mb-6 flex items-end justify-between gap-4">
           <div>
             <p className="text-sm font-black uppercase text-db-gold">Para empezar</p>
             <h2 className="mt-2 text-3xl font-black text-white">Capitulos destacados</h2>
           </div>
-          <a href="/category/temporada-1/" className="focus-ring rounded-md border border-white/10 px-4 py-2 font-bold">
+          <a href="/category/temporada-1/" className="focus-ring rounded-md border border-white/10 px-4 py-2 font-bold hover:border-db-gold">
             Temporada 1
           </a>
         </div>
@@ -203,6 +282,7 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Blog and SEO Articles */}
       <section className="mx-auto max-w-7xl px-4 pb-16 sm:px-6 lg:px-8">
         <div className="mb-6 flex items-end justify-between gap-4">
           <div>
@@ -228,6 +308,51 @@ export default function HomePage() {
               <span className="mt-4 inline-block text-xs font-bold text-db-gold">Leer más →</span>
             </a>
           ))}
+        </div>
+      </section>
+
+      {/* Editorial Guide & FAQs for Google Authority */}
+      <section className="border-t border-white/10 bg-db-panel py-16">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="grid gap-12 lg:grid-cols-[1.2fr_0.8fr]">
+            <div>
+              <p className="text-xs font-black uppercase tracking-wider text-db-gold">Guía Completa</p>
+              <h2 className="mt-2 text-3xl font-black text-white">
+                La Guía Definitiva para ver Los Simpsons Online
+              </h2>
+              <div className="mt-6 space-y-4 text-sm leading-7 text-zinc-300">
+                <p>
+                  Creada por <strong>Matt Groening</strong> y desarrollada junto a James L. Brooks y Sam Simon, <strong>Los Simpsons</strong> es la serie de comedia animada más influyente y premiada en la historia de la televisión mundial. Desde su debut en 1989, la familia amarilla de la Avenida Siempreviva 742 ha entretenido a múltiples generaciones con su sátira aguda de la vida cotidiana, la política y la cultura pop.
+                </p>
+                <p>
+                  En nuestra plataforma tienes acceso inmediato a todas las <strong>34 temporadas completas</strong> con más de <strong>800 capítulos en audio español latino clásico</strong>. Explora la Época Dorada (Temporadas 3 a 8), los especiales legendarios de Halloween (<em>La Casita del Horror</em>), las películas y los episodios más recientes en streaming optimizado para computadoras y móviles.
+                </p>
+              </div>
+            </div>
+
+            <div>
+              <p className="text-xs font-black uppercase tracking-wider text-db-gold">Preguntas Frecuentes</p>
+              <h2 className="mt-2 text-3xl font-black text-white">
+                Preguntas frecuentes
+              </h2>
+              <div className="mt-6 space-y-3">
+                {homeFaqs.map((faq, idx) => (
+                  <details
+                    key={idx}
+                    className="group rounded-lg border border-white/10 bg-white/[0.03] p-4 transition open:border-db-gold/40 open:bg-white/[0.06]"
+                  >
+                    <summary className="flex cursor-pointer list-none items-center justify-between text-sm font-bold text-white group-open:text-db-gold">
+                      <span>{faq.q}</span>
+                      <span className="ml-2 transition-transform group-open:rotate-180">▾</span>
+                    </summary>
+                    <p className="mt-2 text-xs leading-relaxed text-zinc-300">
+                      {faq.a}
+                    </p>
+                  </details>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 

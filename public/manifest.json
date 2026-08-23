@@ -1,0 +1,17 @@
+{
+  "name": "Los Simpsons Online",
+  "short_name": "Los Simpsons",
+  "description": "Ver todas las temporadas y capitulos de Los Simpsons online en espanol latino HD.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#080808",
+  "theme_color": "#ffd90f",
+  "icons": [
+    {
+      "src": "/uploads/2024/07/11200.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ]
+}

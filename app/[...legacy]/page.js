@@ -4,6 +4,7 @@ import CategoryView from "@/components/CategoryView";
 import EpisodeView from "@/components/EpisodeView";
 import UtilityPage from "@/components/UtilityPage";
 import capitulos from "@/data/capitulos.json";
+import seasonsInfo from "@/data/seasons-info.json";
 import {
   absoluteImageUrl,
   absoluteUrl,
@@ -429,6 +430,37 @@ export default async function LegacyPage({ params }) {
       },
     };
 
+    const faqSchema = {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: [
+        {
+          "@type": "Question",
+          name: `¿Cómo ver ${capitulo.tituloLimpio || capitulo.titulo} online en español latino?`,
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: `Puedes reproducir ${capitulo.tituloLimpio || capitulo.titulo} online en streaming en español latino directamente en Los Simpsons Online en HD y sin cortes.`,
+          },
+        },
+        {
+          "@type": "Question",
+          name: `¿A qué temporada pertenece el capítulo ${capitulo.tituloLimpio || capitulo.titulo}?`,
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: `Este episodio pertenece a ${capitulo.categoria || `la Temporada ${capitulo.temporada}`} de Los Simpsons (episodio número ${episodeNumber || 1}).`,
+          },
+        },
+        {
+          "@type": "Question",
+          name: `¿De qué trata este capítulo de Los Simpsons?`,
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: capitulo.descripcion || `Capítulo completo de Los Simpsons en audio latino.`,
+          },
+        },
+      ],
+    };
+
     return (
       <>
         <script
@@ -443,6 +475,10 @@ export default async function LegacyPage({ params }) {
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(tvEpisodeSchema) }}
         />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+        />
         <EpisodeView capitulo={capitulo} capitulos={capitulos} />
       </>
     );
@@ -452,6 +488,8 @@ export default async function LegacyPage({ params }) {
   if (category) {
     const categoryCapitulos = getCategoryCapitulos(category);
     const categoryCanonical = absoluteUrl(category.path);
+    const isSeason = Boolean(category.temporada && category.temporada !== 999 && category.temporada !== 0);
+    const seasonData = isSeason ? seasonsInfo[String(category.temporada)] : null;
 
     const categoryBreadcrumbSchema = {
       "@context": "https://schema.org",
@@ -491,6 +529,37 @@ export default async function LegacyPage({ params }) {
       },
     };
 
+    const tvSeasonSchema = isSeason
+      ? {
+          "@context": "https://schema.org",
+          "@type": "TVSeason",
+          seasonNumber: category.temporada,
+          name: `Los Simpsons Temporada ${category.temporada}`,
+          url: categoryCanonical,
+          numberOfEpisodes: categoryCapitulos.length,
+          partOfSeries: {
+            "@type": "TVSeries",
+            name: "Los Simpsons",
+            url: siteUrl,
+          },
+        }
+      : null;
+
+    const seasonFaqSchema = seasonData
+      ? {
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          mainEntity: seasonData.faqs.map((faq) => ({
+            "@type": "Question",
+            name: faq.question,
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: faq.answer,
+            },
+          })),
+        }
+      : null;
+
     return (
       <>
         <script
@@ -501,6 +570,18 @@ export default async function LegacyPage({ params }) {
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionSchema) }}
         />
+        {tvSeasonSchema && (
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(tvSeasonSchema) }}
+          />
+        )}
+        {seasonFaqSchema && (
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(seasonFaqSchema) }}
+          />
+        )}
         <CategoryView category={category} capitulos={categoryCapitulos} />
       </>
     );

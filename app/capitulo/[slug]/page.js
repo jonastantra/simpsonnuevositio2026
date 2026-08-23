@@ -182,6 +182,37 @@ export default async function CapituloPage({ params }) {
     },
   };
 
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: [
+      {
+        "@type": "Question",
+        name: `¿Cómo ver ${capitulo.tituloLimpio || capitulo.titulo} online en español latino?`,
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: `Puedes reproducir ${capitulo.tituloLimpio || capitulo.titulo} online en streaming en español latino directamente en Los Simpsons Online en HD y sin cortes.`,
+        },
+      },
+      {
+        "@type": "Question",
+        name: `¿A qué temporada pertenece el capítulo ${capitulo.tituloLimpio || capitulo.titulo}?`,
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: `Este episodio pertenece a ${capitulo.categoria || `la Temporada ${capitulo.temporada}`} de Los Simpsons (episodio número ${episodeNumber || 1}).`,
+        },
+      },
+      {
+        "@type": "Question",
+        name: `¿De qué trata este capítulo de Los Simpsons?`,
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: capitulo.descripcion || `Capítulo completo de Los Simpsons en audio latino.`,
+        },
+      },
+    ],
+  };
+
   return (
     <>
       <script
@@ -195,6 +226,10 @@ export default async function CapituloPage({ params }) {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(tvEpisodeSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
       />
       <EpisodeView capitulo={capitulo} capitulos={capitulos} />
     </>
