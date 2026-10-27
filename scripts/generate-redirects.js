@@ -4,8 +4,11 @@ const { siteUrl } = require('../lib/site-config');
 const config = require('../vercel.json');
 const escapePattern = value => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const redirects = [
-  { source: '/:path*', has: [{ type: 'host', value: 'simpsonnuevositio2026.vercel.app' }], destination: `${siteUrl}/:path*`, statusCode: 301 },
-  { source: '/:path*', has: [{ type: 'host', value: 'www.donsimpsononline.xyz' }], destination: `${siteUrl}/:path*`, statusCode: 301 },
+  ...['simpsonnuevositio2026.vercel.app', 'www.donsimpsononline.xyz'].flatMap(host => [
+    { source: '/', has: [{ type: 'host', value: host }], destination: `${siteUrl}/`, statusCode: 301 },
+    { source: '/:path*/', has: [{ type: 'host', value: host }], destination: `${siteUrl}/:path*/`, statusCode: 301 },
+    { source: '/:path*', has: [{ type: 'host', value: host }], destination: `${siteUrl}/:path*`, statusCode: 301 },
+  ]),
   { source: '/feed/', destination: '/feed.xml', statusCode: 301 },
   { source: '/category/blog/', destination: '/blog/', statusCode: 301 },
 ];

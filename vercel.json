@@ -26,6 +26,28 @@
   ],
   "redirects": [
     {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "simpsonnuevositio2026.vercel.app"
+        }
+      ],
+      "destination": "https://donsimpsononline.xyz/",
+      "statusCode": 301
+    },
+    {
+      "source": "/:path*/",
+      "has": [
+        {
+          "type": "host",
+          "value": "simpsonnuevositio2026.vercel.app"
+        }
+      ],
+      "destination": "https://donsimpsononline.xyz/:path*/",
+      "statusCode": 301
+    },
+    {
       "source": "/:path*",
       "has": [
         {
@@ -34,6 +56,28 @@
         }
       ],
       "destination": "https://donsimpsononline.xyz/:path*",
+      "statusCode": 301
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.donsimpsononline.xyz"
+        }
+      ],
+      "destination": "https://donsimpsononline.xyz/",
+      "statusCode": 301
+    },
+    {
+      "source": "/:path*/",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.donsimpsononline.xyz"
+        }
+      ],
+      "destination": "https://donsimpsononline.xyz/:path*/",
       "statusCode": 301
     },
     {
