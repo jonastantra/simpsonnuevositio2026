@@ -35,7 +35,7 @@ function generateVideoSitemap() {
   }
 
   const capitulos = JSON.parse(fs.readFileSync(CAPITULOS_PATH, "utf8"));
-  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://simpsonnuevositio2026.vercel.app").replace(/\/+$/, "");
+  const { siteUrl } = require("../lib/site-config");
 
   let xml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
   xml += `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"\n`;
@@ -51,6 +51,7 @@ function generateVideoSitemap() {
       : `${siteUrl}/uploads/2024/07/11200.jpg`;
     
     const embedUrl = extractEmbedSrc(c.iframe || c.players?.[0]?.embed);
+    if (!embedUrl || !c.players?.length) continue;
     const title = c.seoTitle || `Ver Los Simpsons ${c.temporada && c.temporada !== 999 ? `Temporada ${c.temporada} Capitulo ${c.numero}: ` : ""}${c.tituloLimpio || c.titulo} Online`;
     const desc = c.seoDescription || c.descripcion || `Ver ${c.tituloLimpio || c.titulo} online en streaming en espanol latino.`;
 
@@ -61,18 +62,14 @@ function generateVideoSitemap() {
     xml += `      <video:title>${escapeXml(title)}</video:title>\n`;
     xml += `      <video:description>${escapeXml(desc.slice(0, 1000))}</video:description>\n`;
     if (embedUrl) {
-      xml += `      <video:player_loc allow_embed="yes" autoplay="ap=1">${escapeXml(embedUrl)}</video:player_loc>\n`;
+      xml += `      <video:player_loc>${escapeXml(embedUrl)}</video:player_loc>\n`;
     }
-    xml += `      <video:duration>1320</video:duration>\n`;
-    xml += `      <video:publication_date>2026-05-19T00:00:00+00:00</video:publication_date>\n`;
     xml += `      <video:family_friendly>yes</video:family_friendly>\n`;
-    xml += `      <video:category>${escapeXml(c.categoria || "Los Simpsons")}</video:category>\n`;
     xml += `      <video:tag>Los Simpsons</video:tag>\n`;
     if (c.temporada && c.temporada !== 999) {
       xml += `      <video:tag>Temporada ${c.temporada}</video:tag>\n`;
       xml += `      <video:tag>Capitulo ${c.numero}</video:tag>\n`;
     }
-    xml += `      <video:tag>Streaming HD</video:tag>\n`;
     xml += `      <video:tag>Espanol Latino</video:tag>\n`;
     xml += `    </video:video>\n`;
     xml += `  </url>\n`;

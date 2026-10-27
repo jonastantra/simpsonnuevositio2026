@@ -1,7 +1,1 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/">
-  <ShortName>Los Simpsons</ShortName>
-  <Description>Buscar capitulos de Los Simpsons Online en espanol latino</Description>
-  <InputEncoding>UTF-8</InputEncoding>
-  <Url type="text/html" template="https://simpsonnuevositio2026.vercel.app/buscar/?q={searchTerms}" />
-</OpenSearchDescription>
+<?xml version="1.0" encoding="UTF-8"?><OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/"><ShortName>Los Simpsons</ShortName><Description>Buscar capítulos de Los Simpsons</Description><InputEncoding>UTF-8</InputEncoding><Url type="text/html" template="https://donsimpsononline.xyz/buscar/?q={searchTerms}" /></OpenSearchDescription>

@@ -3,6 +3,7 @@ const path = require("path");
 
 const ROOT = process.cwd();
 const DEFAULT_OUTPUT = path.join(ROOT, "data", "capitulos.json");
+const EPISODE_CORRECTIONS = require("../data/episode-corrections.json");
 const LEGACY_INPUT = path.join(ROOT, "data", "legacy-permalinks.csv");
 const WP_UPLOADS_DIR = findWpUploadsDir();
 const PUBLIC_UPLOADS_DIR = path.join(ROOT, "public", "uploads");
@@ -259,7 +260,9 @@ function cleanEmbed(value) {
   );
   html = ensureAttribute(html, "iframe", "referrerpolicy", "strict-origin-when-cross-origin");
 
-  return html.replace(/\sallowfullscreen=""/i, " allowfullscreen");
+  const sourceUrl = html.match(/https?:\/\/[^\s"'<>]+/i)?.[0];
+  if (!sourceUrl) return "";
+  return `<iframe src="${sourceUrl}" title="Reproductor de Los Simpsons" loading="lazy" allow="fullscreen; picture-in-picture; encrypted-media" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>`;
 }
 
 function embedKey(markup) {
@@ -616,6 +619,8 @@ function migrate() {
 
       const capitulo = {
         id,
+        publishedAt: pick(record, ["date"]),
+        modifiedAt: pick(record, ["post modified date"]),
         titulo,
         tituloLimpio,
         slug,
@@ -637,6 +642,20 @@ function migrate() {
       capitulo.seoTitle = pick(record, ["rankmathtitle", "aioseotitle"]) || simpsonsSeoTitle(capitulo);
       capitulo.seoDescription =
         pick(record, ["rankmathdescription", "aioseodescription"]) || simpsonsSeoDescription(capitulo);
+      const correction = EPISODE_CORRECTIONS[`${category.temporada}x${String(numero).padStart(2, "0")}`];
+      if (correction) {
+        capitulo.tituloLimpio = correction.title;
+        capitulo.titulo = `${category.temporada}x${String(numero).padStart(2, "0")} ${correction.title}`;
+        capitulo.descripcion = `Episodio ${numero} de la temporada ${category.temporada} de Los Simpsons. Título original: ${correction.title}. Estreno original: ${correction.airdate}. ${players.length ? "Consulta las opciones de reproducción disponibles." : "Esta ficha no cuenta con una fuente de reproducción."}`;
+        capitulo.referenceUrl = correction.sourceUrl;
+        capitulo.originalAirdate = correction.airdate;
+      }
+      const displayTitle = capitulo.tituloLimpio || capitulo.titulo;
+      const label = category.temporada > 0 && category.temporada < 999
+        ? `Los Simpsons T${category.temporada} E${numero}: ${displayTitle}`
+        : displayTitle;
+      capitulo.seoTitle = players.length ? `Ver ${label} en español latino` : `${label}: sinopsis y ficha`;
+      capitulo.seoDescription = `${label}. ${capitulo.descripcion}`.slice(0, 160);
       return capitulo;
     })
     .filter((capitulo) => capitulo.titulo && capitulo.slug);

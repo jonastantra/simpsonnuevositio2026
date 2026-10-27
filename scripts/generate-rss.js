@@ -23,18 +23,20 @@ function escapeXml(unsafe) {
 function generateFeeds() {
   const capitulos = fs.existsSync(CAPITULOS_PATH) ? JSON.parse(fs.readFileSync(CAPITULOS_PATH, "utf8")) : [];
   const articles = fs.existsSync(ARTICLES_PATH) ? JSON.parse(fs.readFileSync(ARTICLES_PATH, "utf8")) : [];
-  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://simpsonnuevositio2026.vercel.app").replace(/\/+$/, "");
+  const { siteUrl } = require("../lib/site-config");
 
   const now = new Date().toUTCString();
   const isoNow = new Date().toISOString();
 
+  const searchIndex = capitulos.filter(c => c.temporada > 0 && c.temporada < 999).map(({ titulo, tituloLimpio, temporada, numero, slug, url, imagen }) => ({ titulo, tituloLimpio, temporada, numero, slug, url, imagen }));
+  fs.writeFileSync(path.join(ROOT, "public", "search-index.json"), JSON.stringify(searchIndex));
   // 1. RSS 2.0
   let rss = `<?xml version="1.0" encoding="UTF-8"?>\n`;
   rss += `<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">\n`;
   rss += `  <channel>\n`;
   rss += `    <title>Los Simpsons Online - Streaming en Espanol Latino</title>\n`;
   rss += `    <link>${siteUrl}</link>\n`;
-  rss += `    <description>Todas las temporadas y capitulos de Los Simpsons online en espanol latino HD con reproductor rapido.</description>\n`;
+  rss += `    <description>Catálogo de episodios y guías de Los Simpsons en español latino.</description>\n`;
   rss += `    <language>es-MX</language>\n`;
   rss += `    <lastBuildDate>${now}</lastBuildDate>\n`;
   rss += `    <atom:link href="${siteUrl}/feed.xml" rel="self" type="application/rss+xml" />\n`;
@@ -47,13 +49,13 @@ function generateFeeds() {
     rss += `      <link>${escapeXml(artUrl)}</link>\n`;
     rss += `      <guid isPermaLink="true">${escapeXml(artUrl)}</guid>\n`;
     rss += `      <description>${escapeXml(art.excerpt)}</description>\n`;
-    rss += `      <pubDate>${now}</pubDate>\n`;
+    rss += `      <pubDate>${new Date(art.date).toUTCString()}</pubDate>\n`;
     rss += `      <category>Blog</category>\n`;
     rss += `    </item>\n`;
   }
 
   // Add featured/latest episodes
-  for (const cap of capitulos.slice(-30).reverse()) {
+  for (const cap of capitulos.filter(cap => cap.players?.length).slice(-30).reverse()) {
     const epUrl = `${siteUrl}${cap.url || `/capitulo/${cap.slug}/`}`;
     const title = cap.seoTitle || `Ver Los Simpsons ${cap.temporada && cap.temporada !== 999 ? `T${cap.temporada} E${cap.numero}: ` : ""}${cap.tituloLimpio || cap.titulo} Online`;
     const desc = cap.seoDescription || cap.descripcion || `Capitulo completo de Los Simpsons en espanol latino.`;
@@ -62,7 +64,7 @@ function generateFeeds() {
     rss += `      <link>${escapeXml(epUrl)}</link>\n`;
     rss += `      <guid isPermaLink="true">${escapeXml(epUrl)}</guid>\n`;
     rss += `      <description>${escapeXml(desc)}</description>\n`;
-    rss += `      <pubDate>${now}</pubDate>\n`;
+    if (cap.publishedAt) rss += `      <pubDate>${new Date(cap.publishedAt).toUTCString()}</pubDate>\n`;
     rss += `      <category>${escapeXml(cap.categoria || "Los Simpsons")}</category>\n`;
     rss += `    </item>\n`;
   }
@@ -88,7 +90,7 @@ function generateFeeds() {
     atom += `    <title>${escapeXml(art.title)}</title>\n`;
     atom += `    <link href="${escapeXml(artUrl)}" />\n`;
     atom += `    <id>${escapeXml(artUrl)}</id>\n`;
-    atom += `    <updated>${isoNow}</updated>\n`;
+    atom += `    <updated>${new Date(art.date).toISOString()}</updated>\n`;
     atom += `    <summary>${escapeXml(art.excerpt)}</summary>\n`;
     atom += `  </entry>\n`;
   }
@@ -96,6 +98,8 @@ function generateFeeds() {
   atom += `</feed>\n`;
   fs.writeFileSync(ATOM_PATH, atom, "utf8");
 
+  const openSearch = `<?xml version="1.0" encoding="UTF-8"?><OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/"><ShortName>Los Simpsons</ShortName><Description>Buscar capítulos de Los Simpsons</Description><InputEncoding>UTF-8</InputEncoding><Url type="text/html" template="${siteUrl}/buscar/?q={searchTerms}" /></OpenSearchDescription>`;
+  fs.writeFileSync(path.join(ROOT, "public", "opensearch.xml"), openSearch);
   console.log(`✓ Generated RSS feed (${RSS_PATH}) and Atom feed (${ATOM_PATH})`);
 }
 

@@ -25,9 +25,11 @@ export default function CapituloGrid({ capitulos, eagerCount = 8 }) {
             )}
           </div>
           <div className="p-3">
+            <p className="mb-1 text-xs font-bold text-db-gold">{capitulo.temporada > 0 && capitulo.temporada < 999 ? `T${capitulo.temporada} · E${capitulo.numero}` : capitulo.categoria}</p>
             <h3 className="line-clamp-2 min-h-10 text-sm font-bold leading-5 text-white">
               {capitulo.tituloLimpio || capitulo.titulo}
             </h3>
+            <p className="mt-2 text-xs text-zinc-400">{capitulo.players?.length ? "Con reproductor" : "Solo sinopsis"}</p>
           </div>
         </a>
       ))}

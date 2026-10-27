@@ -23,6 +23,7 @@ import {
   utilityPages,
 } from "@/lib/site";
 import { notFound } from "next/navigation";
+import { episodeMetadata, episodeSchemas } from "@/lib/episode-seo";
 
 export const dynamic = "force-static";
 export const dynamicParams = false;
@@ -36,9 +37,6 @@ export function generateStaticParams() {
 
   for (const capitulo of capitulos) {
     paths.add(episodeHref(capitulo));
-    for (const alias of capitulo.aliases || []) {
-      paths.add(alias);
-    }
   }
   for (const category of categoryPages) {
     paths.add(category.path);
@@ -87,8 +85,6 @@ export async function generateMetadata({ params }) {
         images: [
           {
             url: imageUrl,
-            width: 1200,
-            height: 630,
             alt: article.title,
           },
         ],
@@ -104,53 +100,7 @@ export async function generateMetadata({ params }) {
 
   const capitulo = findCapituloByPath(path);
   if (capitulo) {
-    const title =
-      capitulo.seoTitle ||
-      `Ver Los Simpsons ${capitulo.temporada && capitulo.temporada !== 999 ? `T${capitulo.temporada} E${capitulo.numero}: ` : ""}${capitulo.tituloLimpio || capitulo.titulo} Online Streaming HD`;
-    const description =
-      capitulo.seoDescription ||
-      capitulo.descripcion ||
-      `Ver ${capitulo.tituloLimpio || capitulo.titulo} online en streaming en espanol latino. Capitulo completo en alta definicion.`;
-    const canonicalUrl = absoluteUrl(episodeHref(capitulo));
-    const imageUrl = absoluteImageUrl(capitulo.imagen);
-
-    return {
-      title,
-      description,
-      keywords: [
-        "Los Simpsons online",
-        "streaming Los Simpsons",
-        `Los Simpsons temporada ${capitulo.temporada}`,
-        `Los Simpsons capitulo ${capitulo.numero}`,
-        capitulo.tituloLimpio || capitulo.titulo,
-        "Los Simpsons espanol latino",
-        "capitulo completo HD",
-        "Homer Simpson",
-        "Bart Simpson",
-        "Springfield",
-      ],
-      alternates: { canonical: canonicalUrl },
-      openGraph: {
-        type: "video.episode",
-        url: canonicalUrl,
-        title,
-        description,
-        images: [
-          {
-            url: imageUrl,
-            width: 1200,
-            height: 630,
-            alt: capitulo.tituloLimpio || capitulo.titulo,
-          },
-        ],
-      },
-      twitter: {
-        card: "summary_large_image",
-        title,
-        description,
-        images: [imageUrl],
-      },
-    };
+    return episodeMetadata(capitulo);
   }
 
   if (path === "/blog/") {
@@ -182,7 +132,8 @@ export async function generateMetadata({ params }) {
     const canonicalUrl = absoluteUrl(category.path);
     const defaultImage = absoluteImageUrl();
     return {
-      title: `${category.title} - Ver Capitulos Completos Online Streaming`,
+      title: `Los Simpsons ${category.title}: capítulos y sinopsis`,
+      robots: { index: getCategoryCapitulos(category).length > 0, follow: true },
       description: category.description,
       alternates: { canonical: canonicalUrl },
       openGraph: {
@@ -206,7 +157,7 @@ export async function generateMetadata({ params }) {
     return {
       title: utility.title,
       alternates: { canonical: absoluteUrl(utility.path) },
-      robots: utility.path === "/blog/" ? { index: true, follow: true } : { index: false, follow: true },
+      robots: ["/blog/", "/temporadas/"].includes(utility.path) ? { index: true, follow: true } : { index: false, follow: true },
     };
   }
 
@@ -341,144 +292,11 @@ export default async function LegacyPage({ params }) {
 
   const capitulo = findCapituloByPath(path);
   if (capitulo) {
-    const episodeCanonical = absoluteUrl(episodeHref(capitulo));
-    const episodeImage = absoluteImageUrl(capitulo.imagen);
-    const episodeNumber = capitulo.numero === 9999 ? undefined : capitulo.numero;
-    const embedSrc = capitulo.iframe?.match(/src=["']([^"']+)["']/i)?.[1];
-
-    const videoSchema = {
-      "@context": "https://schema.org",
-      "@type": "VideoObject",
-      name: capitulo.seoTitle || `Ver ${capitulo.tituloLimpio || capitulo.titulo} Online Streaming`,
-      description: capitulo.seoDescription || capitulo.descripcion || `Ver ${capitulo.titulo} online en streaming en espanol latino.`,
-      thumbnailUrl: [episodeImage],
-      uploadDate: "2026-05-19",
-      genre: ["Animacion", "Comedia", "Sitcom", "Streaming"],
-      duration: "PT22M",
-      inLanguage: "es-MX",
-      isAccessibleForFree: "True",
-      partOfSeries: {
-        "@type": "TVSeries",
-        name: "Los Simpsons",
-        creator: "Matt Groening",
-      },
-      episodeNumber,
-      partOfSeason: capitulo.temporada && capitulo.temporada !== 999
-        ? {
-            "@type": "TVSeason",
-            seasonNumber: capitulo.temporada,
-            name: `Temporada ${capitulo.temporada}`,
-          }
-        : undefined,
-      actor: ["Homer Simpson", "Marge Simpson", "Bart Simpson", "Lisa Simpson", "Maggie Simpson"],
-      creator: "Matt Groening",
-      productionCompany: "Fox Broadcasting Company",
-      embedUrl: embedSrc,
-      contentUrl: episodeCanonical,
-      potentialAction: {
-        "@type": "WatchAction",
-        target: episodeCanonical,
-      },
-    };
-
-    const breadcrumbSchema = {
-      "@context": "https://schema.org",
-      "@type": "BreadcrumbList",
-      itemListElement: [
-        {
-          "@type": "ListItem",
-          position: 1,
-          name: "Inicio",
-          item: `${siteUrl}/`,
-        },
-        {
-          "@type": "ListItem",
-          position: 2,
-          name: capitulo.categoria || `Temporada ${capitulo.temporada}`,
-          item: absoluteUrl(`/category/${capitulo.categoriaSlug}/`),
-        },
-        {
-          "@type": "ListItem",
-          position: 3,
-          name: capitulo.tituloLimpio || capitulo.titulo,
-          item: episodeCanonical,
-        },
-      ],
-    };
-
-    const tvEpisodeSchema = {
-      "@context": "https://schema.org",
-      "@type": "TVEpisode",
-      name: capitulo.tituloLimpio || capitulo.titulo,
-      episodeNumber,
-      description: capitulo.seoDescription || capitulo.descripcion,
-      image: episodeImage,
-      partOfSeries: {
-        "@type": "TVSeries",
-        name: "Los Simpsons",
-      },
-      partOfSeason: capitulo.temporada && capitulo.temporada !== 999
-        ? {
-            "@type": "TVSeason",
-            seasonNumber: capitulo.temporada,
-            name: `Temporada ${capitulo.temporada}`,
-          }
-        : undefined,
-      potentialAction: {
-        "@type": "WatchAction",
-        target: episodeCanonical,
-      },
-    };
-
-    const faqSchema = {
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      mainEntity: [
-        {
-          "@type": "Question",
-          name: `¿Cómo ver ${capitulo.tituloLimpio || capitulo.titulo} online en español latino?`,
-          acceptedAnswer: {
-            "@type": "Answer",
-            text: `Puedes reproducir ${capitulo.tituloLimpio || capitulo.titulo} online en streaming en español latino directamente en Los Simpsons Online en HD y sin cortes.`,
-          },
-        },
-        {
-          "@type": "Question",
-          name: `¿A qué temporada pertenece el capítulo ${capitulo.tituloLimpio || capitulo.titulo}?`,
-          acceptedAnswer: {
-            "@type": "Answer",
-            text: `Este episodio pertenece a ${capitulo.categoria || `la Temporada ${capitulo.temporada}`} de Los Simpsons (episodio número ${episodeNumber || 1}).`,
-          },
-        },
-        {
-          "@type": "Question",
-          name: `¿De qué trata este capítulo de Los Simpsons?`,
-          acceptedAnswer: {
-            "@type": "Answer",
-            text: capitulo.descripcion || `Capítulo completo de Los Simpsons en audio latino.`,
-          },
-        },
-      ],
-    };
-
     return (
       <>
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(videoSchema) }}
-        />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
-        />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(tvEpisodeSchema) }}
-        />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
-        />
+        {episodeSchemas(capitulo).map((schema, index) => (
+          <script key={index} type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema).replace(/</g, "\\u003c") }} />
+        ))}
         <EpisodeView capitulo={capitulo} capitulos={capitulos} />
       </>
     );

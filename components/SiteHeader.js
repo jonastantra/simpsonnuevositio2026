@@ -77,7 +77,7 @@ export default function SiteHeader() {
         className="flex gap-2 overflow-x-auto px-4 pb-3 lg:hidden"
         aria-label="Menu principal movil"
       >
-        {menuItems.map((item) => (
+        {[...menuItems, { label: "Buscar", href: "/buscar/" }].map((item) => (
           <a
             key={item.href}
             href={item.href}

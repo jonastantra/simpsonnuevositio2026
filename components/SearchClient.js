@@ -1,6 +1,6 @@
 "use client";
 
-import capitulos from "@/data/capitulos.json";
+
 import { useDeferredValue, useEffect, useMemo, useState } from "react";
 
 const normalizar = (value) =>
@@ -16,10 +16,18 @@ function initialQuery() {
 
 export default function SearchClient() {
   const [query, setQuery] = useState("");
+  const [capitulos, setCapitulos] = useState([]);
+  const [status, setStatus] = useState("loading");
   const deferredQuery = useDeferredValue(query);
 
   useEffect(() => {
     setQuery(initialQuery());
+    const controller = new AbortController();
+    fetch("/search-index.json", { signal: controller.signal }).then(response => {
+      if (!response.ok) throw new Error("No se pudo cargar el catálogo");
+      return response.json();
+    }).then(items => { setCapitulos(items); setStatus("ready"); }).catch(error => { if (error.name !== "AbortError") setStatus("error"); });
+    return () => controller.abort();
   }, []);
 
   const indice = useMemo(
@@ -34,13 +42,14 @@ export default function SearchClient() {
             } ${capitulo.slug}`
           ),
         })),
-    []
+    [capitulos]
   );
 
   const resultados = useMemo(() => {
     const value = normalizar(deferredQuery.trim());
     if (!value) return [];
-    return indice.filter((capitulo) => capitulo.busqueda.includes(value)).slice(0, 80);
+    const terms = value.split(/\s+/);
+    return indice.filter((capitulo) => terms.every(term => capitulo.busqueda.includes(term))).slice(0, 80);
   }, [deferredQuery, indice]);
 
   return (
@@ -61,16 +70,17 @@ export default function SearchClient() {
         </span>
       </label>
 
+      <p role="status" className="mt-4 text-sm text-zinc-300">{status === "loading" ? "Cargando catálogo…" : status === "error" ? "No se pudo cargar el buscador. Recarga la página o entra al directorio de temporadas." : `${resultados.length} resultados`}</p>
       {!query.trim() && (
         <div className="mt-8 rounded-lg border border-white/10 bg-db-panel p-8 text-center">
           <p className="text-xl font-black text-white">Escribe para buscar en el catalogo.</p>
           <p className="mt-2 text-zinc-300">
-            La portada queda rapida y esta pagina carga los resultados solo cuando necesitas encontrar un episodio.
+            Busca por título, personaje o número de temporada.
           </p>
         </div>
       )}
 
-      {query.trim() && resultados.length === 0 && (
+      {status === "ready" && query.trim() && resultados.length === 0 && (
         <div className="mt-8 rounded-lg border border-white/10 bg-db-panel p-8 text-center text-zinc-300">
           No encontre capitulos con esa busqueda.
         </div>

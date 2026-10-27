@@ -42,28 +42,15 @@ const seasonPremieres = {
   34: "Sep. 25, 2022",
 };
 
+const episodeCount = capitulos.filter(item => item.temporada > 0 && item.temporada < 999).length;
+const playerCount = capitulos.filter(item => item.players?.length).length;
 const homeFaqs = [
-  {
-    q: "¿Dónde ver todas las temporadas de Los Simpsons en español latino?",
-    a: "En Los Simpsons Online puedes ver todas las 34 temporadas completas y más de 800 episodios en streaming en español latino clásico con alta calidad de video y sin costo.",
-  },
-  {
-    q: "¿Cuántas temporadas y capítulos tiene la serie Los Simpsons?",
-    a: "Los Simpsons cuenta con 34 temporadas completas y más de 800 episodios emitidos, además de películas y especiales de Halloween (La Casita del Horror).",
-  },
-  {
-    q: "¿Qué temporadas corresponden a la Época Dorada de Los Simpsons?",
-    a: "La aclamada Época Dorada abarca desde la Temporada 3 hasta la Temporada 8, periodo en el que se produjeron obras maestras como 'Marge contra el monorriel', 'Última salida a Springfield' y 'Cabo de miedosos'.",
-  },
-  {
-    q: "¿Puedo ver los episodios desde mi teléfono móvil?",
-    a: "Sí, todos los reproductores y páginas están optimizados para teléfonos inteligentes, tablets y computadoras de escritorio para una reproducción rápida.",
-  },
-  {
-    q: "¿Quiénes hacen las voces en español latino de Los Simpsons?",
-    a: "El doblaje histórico fue liderado por Humberto Vélez (Homero), Nancy MacKenzie (Marge), Marina Huerta y Claudia Motta (Bart), Patricia Acevedo (Lisa) y Gabriel Chávez (Sr. Burns).",
-  },
+  { q: "¿Qué temporadas puedo consultar?", a: `Este catálogo reúne las temporadas 1 a 34 con ${episodeCount} fichas de episodios. No representa la totalidad de las temporadas emitidas de la serie.` },
+  { q: "¿Todas las fichas tienen video?", a: `No. Hay ${playerCount} fichas con una opción de reproducción. Las demás conservan su sinopsis e indican que no hay reproductor disponible. La disponibilidad depende del proveedor externo.` },
+  { q: "¿Cómo encuentro un episodio?", a: "Elige una temporada o usa el buscador para localizar títulos, números de capítulo y personajes. Dentro de cada ficha puedes avanzar al episodio anterior o siguiente." },
+  { q: "¿Dónde están los especiales de Halloween?", a: "La sección Especiales agrupa los episodios identificados como La casita del horror, La casita del terror o Halloween. También permanecen en su temporada original." },
 ];
+export const metadata = { alternates: { canonical: "/" } };
 
 function seasonSummary(number, episodes) {
   const seasonEpisodes = episodes.filter((capitulo) => capitulo.temporada === number);
@@ -84,7 +71,7 @@ function seasonSummary(number, episodes) {
 export default function HomePage() {
   const total = capitulos.length;
   const episodes = capitulos.filter((capitulo) => capitulo.temporada && capitulo.temporada !== 999);
-  const featured = episodes.filter((capitulo) => capitulo.imagen).slice(0, 6);
+  const featured = episodes.filter((capitulo) => capitulo.imagen && capitulo.players?.length).slice(0, 6);
   const articles = getArticles().slice(0, 6);
   const seasons = Array.from({ length: 34 }, (_, index) => seasonSummary(index + 1, episodes))
     .filter((season) => season.count > 0)
@@ -117,15 +104,6 @@ export default function HomePage() {
     },
     genre: ["Animacion", "Comedia", "Sitcom", "Streaming"],
     inLanguage: "es-MX",
-    numberOfSeasons: 34,
-    numberOfEpisodes: episodes.length,
-    aggregateRating: {
-      "@type": "AggregateRating",
-      ratingValue: "4.9",
-      ratingCount: "18450",
-      bestRating: "5",
-      worstRating: "1",
-    },
     containsSeason: seasons.map((s) => ({
       "@type": "TVSeason",
       seasonNumber: s.number,
@@ -177,7 +155,7 @@ export default function HomePage() {
               Ver Los Simpsons Online
             </h1>
             <p className="mt-4 max-w-2xl text-lg font-semibold text-white/95">
-              Todas las 34 temporadas completas ordenadas en streaming rápido. Disfruta de más de 800 episodios en español latino clásico en alta definición HD.
+              Explora las temporadas 1 a 34: {episodeCount} fichas con títulos y sinopsis en español latino. {playerCount} tienen una opción de reproducción; la disponibilidad se indica en cada capítulo.
             </p>
           </div>
           <div className="grid grid-cols-3 gap-3 text-center">
@@ -325,7 +303,7 @@ export default function HomePage() {
                   Creada por <strong>Matt Groening</strong> y desarrollada junto a James L. Brooks y Sam Simon, <strong>Los Simpsons</strong> es la serie de comedia animada más influyente y premiada en la historia de la televisión mundial. Desde su debut en 1989, la familia amarilla de la Avenida Siempreviva 742 ha entretenido a múltiples generaciones con su sátira aguda de la vida cotidiana, la política y la cultura pop.
                 </p>
                 <p>
-                  En nuestra plataforma tienes acceso inmediato a todas las <strong>34 temporadas completas</strong> con más de <strong>800 capítulos en audio español latino clásico</strong>. Explora la Época Dorada (Temporadas 3 a 8), los especiales legendarios de Halloween (<em>La Casita del Horror</em>), las películas y los episodios más recientes en streaming optimizado para computadoras y móviles.
+                  El catálogo reúne <strong>{episodeCount} fichas de las temporadas 1 a 34</strong>. Puedes recorrerlas en orden, consultar su sinopsis y comprobar si hay una opción de reproducción. Explora también los especiales de Halloween y las guías del blog.
                 </p>
               </div>
             </div>

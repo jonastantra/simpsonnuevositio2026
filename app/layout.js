@@ -1,15 +1,16 @@
 import "./globals.css";
 import Script from "next/script";
 import { siteUrl } from "@/lib/site";
+import config from "@/lib/site-config";
 
 export const metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "Los Simpsons Online - Ver todas las temporadas en Espanol Latino",
+    default: "Los Simpsons Online: capítulos y temporadas en español latino",
     template: "%s | Los Simpsons Online",
   },
   description:
-    "Ver Los Simpsons online en espanol latino completo en HD. Todas las 34 temporadas, episodios completos, especiales de Springfield y capitulos de Homer, Bart, Lisa, Marge y Maggie.",
+    "Explora Los Simpsons en español latino: catálogo de las temporadas 1 a 34, títulos, sinopsis y opciones de reproducción disponibles por capítulo.",
   keywords: [
     "Los Simpsons online",
     "ver Los Simpsons",
@@ -26,7 +27,6 @@ export const metadata = {
     "los simpson streaming",
   ],
   alternates: {
-    canonical: "/",
     types: {
       "application/rss+xml": `${siteUrl}/feed.xml`,
       "application/atom+xml": `${siteUrl}/atom.xml`,
@@ -40,14 +40,12 @@ export const metadata = {
     locale: "es_MX",
     url: siteUrl,
     siteName: "Los Simpsons Online",
-    title: "Los Simpsons Online - Ver todas las temporadas en Espanol Latino",
+    title: "Los Simpsons Online: capítulos y temporadas en español latino",
     description:
-      "Todas las temporadas de Los Simpsons, capitulos completos y especiales de Springfield en audio latino y alta definicion.",
+      "Guía de Los Simpsons: temporadas, títulos, sinopsis y opciones de reproducción por episodio.",
     images: [
       {
         url: `${siteUrl}/uploads/2024/07/11200.jpg`,
-        width: 1200,
-        height: 630,
         alt: "Los Simpsons Online",
       },
     ],
@@ -55,25 +53,18 @@ export const metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Los Simpsons Online - Streaming en Espanol Latino",
-    description: "Capitulos completos de Los Simpsons online en espanol latino y HD.",
+    description: "Consulta el catálogo de Los Simpsons en español latino por temporada y episodio.",
     images: [`${siteUrl}/uploads/2024/07/11200.jpg`],
   },
   robots: {
     index: true,
     follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      "max-image-preview": "large",
-      "max-snippet": -1,
-      "max-video-preview": -1,
-    },
   },
   other: {
     "ppck-ver": "1d1bc63ed90ec8bb734607215eb688c3",
     rating: "general",
     distribution: "global",
-    "revisit-after": "1 days",
+    "site-release": config.release,
   },
 };
 
@@ -110,7 +101,7 @@ export default function RootLayout({ children }) {
   };
 
   return (
-    <html lang="es">
+    <html lang="es-MX">
       <head>
         <link rel="preconnect" href="https://pagead2.googlesyndication.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://www.googletagmanager.com" crossOrigin="anonymous" />

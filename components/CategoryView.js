@@ -35,10 +35,10 @@ export default function CategoryView({ category, capitulos }) {
       >
         <div className="mx-auto max-w-5xl">
           <p className="mb-3 text-sm font-black uppercase tracking-wide text-db-gold">
-            Los Simpsons Streaming HD
+            Catálogo de Los Simpsons
           </p>
           <h1 className="site-hero-title text-4xl font-black uppercase text-white sm:text-6xl">
-            {category.title}
+            Los Simpsons: {category.title}
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-lg font-semibold text-white/90">
             {category.description}
@@ -50,13 +50,13 @@ export default function CategoryView({ category, capitulos }) {
                 Emisión: {seasonData.year}
               </span>
               <span className="rounded-full border border-white/10 bg-white/[0.06] px-3 py-1 text-zinc-200">
-                {capitulos.length} Episodios Completos
+                {capitulos.length} fichas de episodios
               </span>
               <span className="rounded-full border border-white/10 bg-white/[0.06] px-3 py-1 text-zinc-200">
                 Audio: Español Latino
               </span>
               <span className="rounded-full border border-white/10 bg-white/[0.06] px-3 py-1 text-zinc-200">
-                Calidad: HD 1080p / 720p
+                {capitulos.filter(item => item.players?.length).length} con reproductor
               </span>
             </div>
           )}
@@ -99,7 +99,7 @@ export default function CategoryView({ category, capitulos }) {
         <div className="mb-6 flex items-end justify-between gap-4">
           <div>
             <p className="text-sm font-black uppercase text-db-orange">
-              {capitulos.length} capitulos en audio latino
+              {capitulos.length} fichas en el catálogo
             </p>
             <h2 className="mt-2 text-3xl font-black text-white">Todos los episodios</h2>
           </div>

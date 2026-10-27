@@ -1,6 +1,8 @@
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
 
+export const metadata = { title: "Página no encontrada", alternates: { canonical: null }, robots: { index: false, follow: true } };
+
 export default function NotFound() {
   const topSeasons = [
     { num: 1, label: "Temporada 1", href: "/category/temporada-1/" },

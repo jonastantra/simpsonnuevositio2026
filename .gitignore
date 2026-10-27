@@ -10,3 +10,6 @@ Tema Dragon Ball/
 Entradas-Export-*.csv
 
 .vercel
+
+# Local audit evidence can contain private Search Console metrics.
+artifacts/

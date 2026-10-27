@@ -12,7 +12,7 @@ export default function EpisodeView({ capitulo, capitulos }) {
   const displayTitle = capitulo.tituloLimpio || capitulo.titulo;
   const episodeNumber = capitulo.numero === 9999 ? index + 1 : capitulo.numero;
   const episodeLabel =
-    capitulo.temporada && capitulo.temporada !== 999
+    capitulo.temporada > 0 && capitulo.temporada < 999
       ? `Temporada ${capitulo.temporada} - Capitulo ${episodeNumber}`
       : capitulo.categoria;
 
@@ -21,22 +21,8 @@ export default function EpisodeView({ capitulo, capitulos }) {
   const encodedUrl = encodeURIComponent(currentUrl);
 
   const episodeFaqs = [
-    {
-      q: `¿Cómo ver ${displayTitle} online en español latino?`,
-      a: `Puedes reproducir ${displayTitle} directamente en nuestro reproductor web en streaming HD con audio en español latino clásico sin cortes ni registros.`,
-    },
-    {
-      q: `¿A qué temporada pertenece el capítulo ${displayTitle}?`,
-      a: `Este capítulo pertenece a ${capitulo.categoria || `la Temporada ${capitulo.temporada}`} de Los Simpsons (episodio número ${episodeNumber}).`,
-    },
-    {
-      q: `¿De qué trata este capítulo de Los Simpsons?`,
-      a: `${capitulo.descripcion}`,
-    },
-    {
-      q: `¿En qué calidad de video está disponible?`,
-      a: `El episodio está optimizado en streaming de alta definición (HD 720p / 1080p) con reproducción fluida para dispositivos móviles y computadoras.`,
-    },
+    { q: `¿Hay reproductor para ${displayTitle}?`, a: capitulo.players?.length ? `Esta ficha tiene ${capitulo.players.length} opción de reproducción externa. La disponibilidad y calidad dependen del proveedor.` : "Por ahora esta ficha no tiene una fuente de reproducción. Se conserva la sinopsis y la navegación por el catálogo." },
+    { q: "¿Cómo encuentro más capítulos?", a: "Usa los enlaces anterior y siguiente, el directorio de temporadas o el buscador del sitio." },
   ];
 
   return (
@@ -61,18 +47,10 @@ export default function EpisodeView({ capitulo, capitulos }) {
               <span className="rounded-md bg-db-gold px-3 py-1 text-xs font-black uppercase tracking-wide text-black">
                 {episodeLabel}
               </span>
-              <span className="rounded-md border border-white/10 bg-white/[0.06] px-2.5 py-1 text-xs font-bold text-zinc-300">
-                ⏱ 22 min
-              </span>
-              <span className="rounded-md border border-white/10 bg-white/[0.06] px-2.5 py-1 text-xs font-bold text-zinc-300">
-                🔊 Español Latino
-              </span>
-              <span className="rounded-md border border-white/10 bg-white/[0.06] px-2.5 py-1 text-xs font-bold text-zinc-300">
-                📺 Calidad HD
-              </span>
+
             </div>
             <h1 className="max-w-5xl text-3xl font-black leading-tight text-white sm:text-5xl">
-              {displayTitle}
+              {displayTitle}{capitulo.temporada > 0 && capitulo.temporada < 999 ? ` — Los Simpsons T${capitulo.temporada} E${episodeNumber}` : ""}
             </h1>
           </div>
           <p className="max-w-sm text-sm font-semibold text-zinc-400 lg:text-right">
@@ -131,6 +109,7 @@ export default function EpisodeView({ capitulo, capitulos }) {
           <div className="rounded-lg border border-white/10 bg-white/[0.04] p-5">
             <h2 className="text-2xl font-black text-white">Sinopsis del capitulo</h2>
             <p className="mt-3 leading-8 text-zinc-300">{capitulo.descripcion}</p>
+            {capitulo.referenceUrl && <p className="mt-3 text-xs text-zinc-400">Título original y fecha contrastados con <a className="underline hover:text-db-gold" href={capitulo.referenceUrl} target="_blank" rel="noopener noreferrer">TVmaze</a>.</p>}
           </div>
 
           <div className="rounded-lg border border-white/10 bg-white/[0.04] p-5">
@@ -151,7 +130,7 @@ export default function EpisodeView({ capitulo, capitulos }) {
               </div>
             ) : (
               <p className="mt-3 leading-8 text-zinc-400">
-                Las descargas externas disponibles se agregan automaticamente desde la migracion.
+                No hay enlaces de descarga disponibles para esta ficha.
               </p>
             )}
           </div>
@@ -208,7 +187,7 @@ export default function EpisodeView({ capitulo, capitulos }) {
               href={`/category/${capitulo.categoriaSlug}/`}
               className="focus-ring rounded-md border border-white/10 px-3 py-1.5 text-xs font-bold text-white hover:border-db-gold"
             >
-              Ver {capitulo.categoria || "Temporada"} completa
+              Explorar {capitulo.categoria || "temporada"}
             </a>
           </div>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">

@@ -83,3 +83,11 @@ img {
 .focus-ring:focus-visible {
   outline-color: var(--db-gold);
 }
+
+/* Keep ad slots from expanding the page on narrow screens. */
+main, header, footer, section, article { min-width: 0; }
+.adsbygoogle { display: block; width: 100%; max-width: 100%; overflow: hidden; }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}

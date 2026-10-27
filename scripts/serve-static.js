@@ -53,7 +53,18 @@ function resolveRequest(url) {
   return path.join(OUT_DIR, "404.html");
 }
 
+const redirectRules = require("../vercel.json").redirects.filter(rule => !rule.has).map(rule => ({
+  ...rule,
+  pattern: new RegExp("^" + (rule.source.startsWith("/:legacy(") ? "(?:" + rule.source.slice(9, -2) + ")" : rule.source.split("/").filter(Boolean).join("/")) + "$"),
+}));
 const server = http.createServer((req, res) => {
+  const requestUrl = new URL(req.url, `http://localhost:${PORT}`);
+  const requestPath = safeDecode(requestUrl.pathname).replace(/^\/+|\/+$/g, "");
+  const redirect = redirectRules.find(rule => rule.pattern.test(requestPath));
+  if (redirect) {
+    res.writeHead(redirect.statusCode, { location: redirect.destination + requestUrl.search });
+    res.end(); return;
+  }
   const filePath = resolveRequest(req.url);
   const ext = path.extname(filePath).toLowerCase();
   const statusCode = path.basename(filePath) === "404.html" ? 404 : 200;

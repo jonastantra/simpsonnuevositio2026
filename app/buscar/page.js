@@ -6,6 +6,7 @@ export const dynamic = "force-static";
 
 export const metadata = {
   title: "Buscar capitulos de Los Simpsons",
+  robots: { index: false, follow: true },
   description:
     "Busca capitulos de Los Simpsons online por titulo, temporada o numero de episodio en espanol latino.",
   alternates: {

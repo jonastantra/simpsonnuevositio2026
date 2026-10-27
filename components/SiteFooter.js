@@ -1,7 +1,7 @@
 import { menuItems, utilityPages } from "@/lib/site";
 
 export default function SiteFooter() {
-  const seasons = Array.from({ length: 34 }, (_, i) => i + 1);
+  const seasons = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 34];
 
   return (
     <footer className="border-t border-white/10 bg-db-black px-4 py-12 text-sm text-zinc-400 sm:px-6 lg:px-8">
@@ -21,6 +21,7 @@ export default function SiteFooter() {
                 T{num}
               </a>
             ))}
+            <a href="/temporadas/" className="rounded border border-white/10 px-2.5 py-1 font-bold text-db-gold">Ver las 34 temporadas</a>
             <a
               href="/category/especiales/"
               className="rounded border border-white/10 bg-white/[0.03] px-2.5 py-1 font-bold text-zinc-300 transition hover:border-db-gold hover:bg-db-gold/10 hover:text-db-gold"
@@ -48,8 +49,8 @@ export default function SiteFooter() {
               <span className="text-db-gold">Los Simpsons</span> Online
             </p>
             <p className="mt-3 max-w-2xl text-xs leading-6 text-zinc-400">
-              Tu portal para ver todas las temporadas de Los Simpsons online en streaming en español latino HD.
-              Todos los episodios organizados de forma cronológica para una visualización rápida.
+              Catálogo de Los Simpsons en español latino: temporadas 1 a 34, sinopsis y opciones de reproducción disponibles.
+              Fichas organizadas por temporada y número de episodio.
               Los Simpsons es una marca registrada de 20th Century Studios y Fox Broadcasting Company.
             </p>
             <div className="mt-4 flex items-center gap-4 text-xs">
