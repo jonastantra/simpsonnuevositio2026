@@ -1,340 +1,53 @@
-import SiteFooter from "@/components/SiteFooter";
-import SiteHeader from "@/components/SiteHeader";
-import capitulos from "@/data/capitulos.json";
-import { absoluteUrl, episodeHref, getArticles, siteUrl } from "@/lib/site";
+import SiteHeader from '@/components/SiteHeader';
+import SiteFooter from '@/components/SiteFooter';
+import SiteImage from '@/components/SiteImage';
+import EpisodeCard from '@/components/EpisodeCard';
+import Icon from '@/components/Icon';
+import capitulos from '@/data/capitulos.json';
+import { absoluteUrl, episodeHref, getArticles, siteUrl } from '@/lib/site';
 
-export const dynamic = "force-static";
-
-const seasonPremieres = {
-  1: "Dic. 17, 1989",
-  2: "Oct. 11, 1990",
-  3: "Sep. 19, 1991",
-  4: "Sep. 24, 1992",
-  5: "Sep. 30, 1993",
-  6: "Sep. 04, 1994",
-  7: "Sep. 17, 1995",
-  8: "Oct. 27, 1996",
-  9: "Sep. 21, 1997",
-  10: "Ago. 23, 1998",
-  11: "Sep. 26, 1999",
-  12: "Nov. 01, 2000",
-  13: "Nov. 06, 2001",
-  14: "Nov. 03, 2002",
-  15: "Nov. 02, 2003",
-  16: "Nov. 07, 2004",
-  17: "Sep. 11, 2005",
-  18: "Sep. 10, 2006",
-  19: "Sep. 23, 2007",
-  20: "Sep. 28, 2008",
-  21: "Sep. 27, 2009",
-  22: "Sep. 26, 2010",
-  23: "Sep. 25, 2011",
-  24: "Sep. 30, 2012",
-  25: "Sep. 29, 2013",
-  26: "Sep. 28, 2014",
-  27: "Sep. 27, 2015",
-  28: "Sep. 25, 2016",
-  29: "Oct. 01, 2017",
-  30: "Sep. 30, 2018",
-  31: "Sep. 29, 2019",
-  32: "Sep. 27, 2020",
-  33: "Sep. 26, 2021",
-  34: "Sep. 25, 2022",
-};
-
-const episodeCount = capitulos.filter(item => item.temporada > 0 && item.temporada < 999).length;
-const playerCount = capitulos.filter(item => item.players?.length).length;
-const homeFaqs = [
-  { q: "¿Qué temporadas puedo consultar?", a: `Este catálogo reúne las temporadas 1 a 34 con ${episodeCount} fichas de episodios. No representa la totalidad de las temporadas emitidas de la serie.` },
-  { q: "¿Todas las fichas tienen video?", a: `No. Hay ${playerCount} fichas con una opción de reproducción. Las demás conservan su sinopsis e indican que no hay reproductor disponible. La disponibilidad depende del proveedor externo.` },
-  { q: "¿Cómo encuentro un episodio?", a: "Elige una temporada o usa el buscador para localizar títulos, números de capítulo y personajes. Dentro de cada ficha puedes avanzar al episodio anterior o siguiente." },
-  { q: "¿Dónde están los especiales de Halloween?", a: "La sección Especiales agrupa los episodios identificados como La casita del horror, La casita del terror o Halloween. También permanecen en su temporada original." },
+export const dynamic = 'force-static';
+export const metadata = { alternates: { canonical: '/' } };
+const episodes = capitulos.filter(e => e.temporada > 0 && e.temporada < 999);
+const playableCount = episodes.filter(e => e.players?.length).length;
+const faqs = [
+  { q: '¿Qué temporadas puedo consultar?', a: `El catálogo reúne ${episodes.length} fichas de las temporadas 1 a 34. Cada temporada tiene su propia lista de títulos y sinopsis.` },
+  { q: '¿Todos los capítulos tienen reproductor?', a: `No. Hay ${playableCount} fichas con una opción de reproducción externa. Las demás están identificadas como «Solo sinopsis». La disponibilidad depende de cada proveedor.` },
+  { q: '¿Cómo encuentro un capítulo?', a: 'Puedes buscar por título, personaje o número de temporada. Si prefieres verlos en orden, abre una temporada y usa los enlaces anterior y siguiente dentro de cada ficha.' },
 ];
-export const metadata = { alternates: { canonical: "/" } };
-
-function seasonSummary(number, episodes) {
-  const seasonEpisodes = episodes.filter((capitulo) => capitulo.temporada === number);
-  const poster =
-    seasonEpisodes.find((capitulo) => capitulo.imagen && capitulo.numero && capitulo.numero > 3)?.imagen ||
-    seasonEpisodes.find((capitulo) => capitulo.imagen)?.imagen ||
-    "";
-
-  return {
-    number,
-    count: seasonEpisodes.length,
-    href: `/category/temporada-${number}/`,
-    poster,
-    premiere: seasonPremieres[number] || "",
-  };
-}
+const seasonNumbers = [1,3,4,5,6,7,8,21];
+const seasons = seasonNumbers.map(number => {
+  const items=episodes.filter(e=>e.temporada===number);
+  return {number,count:items.length,available:items.filter(e=>e.players?.length).length,image:items.find(e=>e.imagen)?.imagen,path:`/category/temporada-${number}/`};
+});
+const hero=episodes.find(e=>e.temporada===7 && e.numero===1);
+const classics=[[4,12],[5,2],[6,25],[7,4],[8,23],[1,1]].map(([s,n])=>episodes.find(e=>e.temporada===s && e.numero===n && e.players?.length)).filter(Boolean);
+const articles=getArticles().filter(a=>['la-epoca-dorada-de-los-simpson-temporadas-3-a-8','voces-en-espanol-latino-de-los-simpson-doblaje-legendario','guia-para-ver-los-simpson-orden-cronologico-temporadas'].includes(a.slug));
 
 export default function HomePage() {
-  const total = capitulos.length;
-  const episodes = capitulos.filter((capitulo) => capitulo.temporada && capitulo.temporada !== 999);
-  const featured = episodes.filter((capitulo) => capitulo.imagen && capitulo.players?.length).slice(0, 6);
-  const articles = getArticles().slice(0, 6);
-  const seasons = Array.from({ length: 34 }, (_, index) => seasonSummary(index + 1, episodes))
-    .filter((season) => season.count > 0)
-    .reverse();
+  const schemas=[
+    {'@context':'https://schema.org','@type':'CollectionPage',name:'Los Simpsons Online: capítulos y temporadas',url:`${siteUrl}/`,description:'Catálogo de capítulos, sinopsis y guías de Los Simpsons en español latino.'},
+    {'@context':'https://schema.org','@type':'ItemList',name:'Temporadas para explorar',numberOfItems:seasons.length,itemListElement:seasons.map((s,i)=>({'@type':'ListItem',position:i+1,name:`Los Simpsons temporada ${s.number}`,url:absoluteUrl(s.path)}))},
+    {'@context':'https://schema.org','@type':'FAQPage',mainEntity:faqs.map(f=>({'@type':'Question',name:f.q,acceptedAnswer:{'@type':'Answer',text:f.a}}))},
+  ];
+  return <main>
+    {schemas.map((schema,index)=><script key={index} type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(schema).replace(/</g,'\\u003c')}} />)}
+    <SiteHeader />
+    <section id="contenido" className="home-hero"><div className="shell hero-layout">
+      <div className="hero-copy"><span className="eyebrow"><span className="status-dot" />BIENVENIDO DE VUELTA A SPRINGFIELD</span><h1>Los Simpsons<br /><span>online.</span><i aria-hidden="true">✳</i></h1><p>Tu familia amarilla de siempre.<br />Encuentra ese capítulo que nunca te cansas de volver a ver.</p><div className="hero-actions"><a className="button button-ink" href="/temporadas/">Explorar temporadas<Icon name="arrow" /></a><a className="text-link" href="/buscar/"><Icon name="search" size={18} />Buscar un capítulo</a></div><div className="hero-footnote"><strong>34</strong> temporadas<span /> <strong>{episodes.length}</strong> fichas<span /> En español latino</div></div>
+      <div className="hero-visual"><div className="tv-sticker">CLÁSICOS QUE<br />NO FALLAN <span>↘</span></div><a className="hero-tv" href={episodeHref(hero)}><div className="tv-top"><span><i />EN SPRINGFIELD</span><span>EST. 1989</span></div><div className="tv-image"><SiteImage src={hero.imagen} alt="La familia Simpson junto al señor Burns en el hospital" eager sizes="(max-width: 760px) 90vw, 46vw" /><span className="tv-play"><Icon name="play" size={27} /></span></div><div className="tv-caption"><span>T07 · E01</span><strong>¿Quién mató al Sr. Burns?<small>Segunda parte</small></strong><Icon name="arrow" /></div></a><span className="hero-orbit" aria-hidden="true">✳</span></div>
+    </div></section>
+    <div className="catalog-note"><div className="shell"><span className="status-dot" /><p><strong>Sin perderte entre enlaces.</strong> Cada ficha indica si tiene reproductor o solo sinopsis.</p><a href="/temporadas/">Conoce el catálogo<Icon name="arrow" size={16} /></a></div></div>
 
-  const itemListSchema = {
-    "@context": "https://schema.org",
-    "@type": "ItemList",
-    name: "Temporadas de Los Simpsons Online",
-    numberOfItems: seasons.length,
-    itemListElement: seasons.map((season, index) => ({
-      "@type": "ListItem",
-      position: index + 1,
-      url: absoluteUrl(season.href),
-      name: `Los Simpsons temporada ${season.number}`,
-    })),
-  };
+    <section className="section shell"><div className="section-heading"><div><span className="eyebrow">DE LOS QUE DAN GANAS DE REPETIR</span><h2>Un buen lugar para empezar<span>.</span></h2></div><a className="text-link" href="/buscar/">Encontrar otro<Icon name="arrow" size={18} /></a></div><div className="home-classics">{classics.map((episode,index)=><EpisodeCard key={episode.slug} episode={episode} index={index} />)}</div></section>
 
-  const tvSeriesSchema = {
-    "@context": "https://schema.org",
-    "@type": "TVSeries",
-    name: "Los Simpsons",
-    alternateName: ["The Simpsons", "Los Simpson en espanol latino", "Los Simpson Streaming"],
-    url: siteUrl,
-    image: `${siteUrl}/uploads/2024/07/11200.jpg`,
-    description: "Serie de animacion y comedia que sigue las aventuras satíricas de la familia Simpson en la ciudad de Springfield.",
-    creator: {
-      "@type": "Person",
-      name: "Matt Groening",
-    },
-    genre: ["Animacion", "Comedia", "Sitcom", "Streaming"],
-    inLanguage: "es-MX",
-    containsSeason: seasons.map((s) => ({
-      "@type": "TVSeason",
-      seasonNumber: s.number,
-      url: absoluteUrl(s.href),
-      name: `Temporada ${s.number}`,
-      numberOfEpisodes: s.count,
-    })),
-  };
+    <section className="seasons-section"><div className="shell section"><div className="section-heading"><div><span className="eyebrow">CADA ETAPA TIENE LO SUYO</span><h2>¿Por cuál temporada vamos?</h2></div><a className="button button-outline" href="/temporadas/">Ver las 34<Icon name="arrow" size={18} /></a></div><div className="home-seasons">{seasons.map(s=><a className="season-card" href={s.path} key={s.number}><div className="season-art"><SiteImage src={s.image} alt={`Los Simpsons, temporada ${s.number}`} /><span>{String(s.number).padStart(2,'0')}</span></div><div className="season-card-copy"><h3>Temporada {s.number}</h3><p>{s.count} capítulos · {s.available} con reproductor</p><Icon name="arrow" size={17} /></div></a>)}</div><div className="season-directory-link"><p>¿Buscas otra? El archivo completo está organizado del 1 al 34.</p><a className="text-link" href="/temporadas/">Ir al directorio completo<Icon name="arrow" size={17} /></a></div></div></section>
 
-  const faqSchema = {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    mainEntity: homeFaqs.map((faq) => ({
-      "@type": "Question",
-      name: faq.q,
-      acceptedAnswer: {
-        "@type": "Answer",
-        text: faq.a,
-      },
-    })),
-  };
+    <section className="shell special-section"><div className="special-copy"><span className="eyebrow">UN POCO DE TERROR. MUCHO SPRINGFIELD.</span><h2>Bienvenido a<br />la casita del horror<span>!</span></h2><p>Los especiales de Halloween también tienen su propio rincón. Entra bajo tu propio riesgo… de querer ver otro.</p><a className="button button-yellow" href="/category/especiales/">Explorar los especiales<Icon name="arrow" /></a></div><div className="special-art" aria-hidden="true"><span>BOO<span>!</span></span><div className="special-eye"><i /><i /></div><p>LA NOCHE ES JOVEN.</p></div></section>
 
-  return (
-    <main>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(tvSeriesSchema) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
-      />
-      <SiteHeader />
+    <section className="section shell"><div className="section-heading"><div><span className="eyebrow">MÁS ALLÁ DEL SOFÁ</span><h2>Historias desde Springfield<span>.</span></h2></div><a className="text-link" href="/blog/">Ir al blog<Icon name="arrow" size={18} /></a></div><div className="article-grid">{articles.map(a=><article className="article-card" key={a.slug}><a href={a.path} className="article-cover"><SiteImage src={a.image} alt={a.title} sizes="(max-width: 760px) 115px, 30vw" /></a><div className="article-card-copy"><span className="eyebrow">{a.tags?.[0]} · {a.readTime}</span><h3><a href={a.path}>{a.title}</a></h3><a className="text-link" href={a.path}>Leer la historia<Icon name="arrow" size={16} /></a></div></article>)}</div></section>
 
-      <section
-        id="contenido"
-        className="border-b border-white/10 bg-[linear-gradient(135deg,#ffd90f_0%,#0088cc_100%)] px-4 py-16 sm:px-6 lg:px-8"
-      >
-        <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[1fr_0.72fr] lg:items-end">
-          <div>
-            <p className="mb-3 text-sm font-black uppercase tracking-wide text-black/75">
-              Springfield por temporadas
-            </p>
-            <h1 className="site-hero-title max-w-4xl text-4xl font-black uppercase text-white sm:text-6xl">
-              Ver Los Simpsons Online
-            </h1>
-            <p className="mt-4 max-w-2xl text-lg font-semibold text-white/95">
-              Explora las temporadas 1 a 34: {episodeCount} fichas con títulos y sinopsis en español latino. {playerCount} tienen una opción de reproducción; la disponibilidad se indica en cada capítulo.
-            </p>
-          </div>
-          <div className="grid grid-cols-3 gap-3 text-center">
-            <div className="rounded-lg border border-black/10 bg-black/25 p-4">
-              <p className="text-3xl font-black text-white">{episodes.length}</p>
-              <p className="mt-1 text-xs font-black uppercase text-white/80">Capitulos</p>
-            </div>
-            <div className="rounded-lg border border-black/10 bg-black/25 p-4">
-              <p className="text-3xl font-black text-white">{seasons.length}</p>
-              <p className="mt-1 text-xs font-black uppercase text-white/80">Temporadas</p>
-            </div>
-            <div className="rounded-lg border border-black/10 bg-black/25 p-4">
-              <p className="text-3xl font-black text-white">{capitulos.filter((item) => item.players?.length).length}</p>
-              <p className="mt-1 text-xs font-black uppercase text-white/80">Con video</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Seasons Section */}
-      <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-        <div className="mb-6 flex items-end justify-between gap-4">
-          <div>
-            <p className="text-sm font-black uppercase text-db-gold">Temporadas</p>
-            <h2 className="mt-2 text-3xl font-black text-white">Elige una temporada</h2>
-          </div>
-          <a href="/buscar/" className="focus-ring rounded-md border border-white/10 px-4 py-2 font-bold hover:border-db-gold">
-            Buscar capitulo
-          </a>
-        </div>
-        <div className="grid grid-cols-2 gap-x-5 gap-y-8 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6">
-          {seasons.map((season) => (
-            <a
-              key={season.number}
-              href={season.href}
-              className="focus-ring group block"
-            >
-              <span className="block overflow-hidden rounded-lg border border-white/10 bg-db-panel2 shadow-card transition duration-200 group-hover:-translate-y-1 group-hover:border-db-gold group-hover:shadow-glow">
-                <span className="block aspect-[4/5] bg-zinc-950">
-                  {season.poster ? (
-                    <img
-                      src={season.poster}
-                      alt={`Los Simpsons temporada ${season.number}`}
-                      loading={season.number >= 29 ? "eager" : "lazy"}
-                      decoding="async"
-                      className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
-                    />
-                  ) : (
-                    <span className="flex h-full items-center justify-center bg-[linear-gradient(135deg,#ffd90f,#0088cc)] p-4 text-center text-3xl font-black text-black">
-                      T{season.number}
-                    </span>
-                  )}
-                </span>
-              </span>
-              <span className="mt-3 block text-lg font-black text-white group-hover:text-db-gold">
-                Temporada {season.number}
-              </span>
-              <span className="mt-1 block text-sm font-semibold text-zinc-400">
-                {season.premiere || `${season.count} capitulos`} - {season.count} capitulos
-              </span>
-            </a>
-          ))}
-        </div>
-      </section>
-
-      {/* Featured Episodes */}
-      <section className="mx-auto max-w-7xl px-4 pb-12 sm:px-6 lg:px-8">
-        <div className="mb-6 flex items-end justify-between gap-4">
-          <div>
-            <p className="text-sm font-black uppercase text-db-gold">Para empezar</p>
-            <h2 className="mt-2 text-3xl font-black text-white">Capitulos destacados</h2>
-          </div>
-          <a href="/category/temporada-1/" className="focus-ring rounded-md border border-white/10 px-4 py-2 font-bold hover:border-db-gold">
-            Temporada 1
-          </a>
-        </div>
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-          {featured.map((capitulo, index) => (
-            <a
-              key={capitulo.slug}
-              href={episodeHref(capitulo)}
-              className={`group overflow-hidden rounded-lg border border-white/10 bg-db-panel shadow-card transition hover:-translate-y-1 hover:border-db-gold ${
-                index === 0 ? "col-span-2 row-span-2" : ""
-              }`}
-            >
-              <div className="aspect-video bg-zinc-950">
-                <img
-                  src={capitulo.imagen}
-                  alt={capitulo.tituloLimpio || capitulo.titulo}
-                  className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
-                  loading={index === 0 ? "eager" : "lazy"}
-                />
-              </div>
-              <div className="p-3">
-                <p className="text-xs font-black uppercase text-db-gold">
-                  T{capitulo.temporada} - E{capitulo.numero}
-                </p>
-                <h2 className="mt-1 line-clamp-2 text-sm font-bold text-white">{capitulo.tituloLimpio || capitulo.titulo}</h2>
-              </div>
-            </a>
-          ))}
-        </div>
-      </section>
-
-      {/* Blog and SEO Articles */}
-      <section className="mx-auto max-w-7xl px-4 pb-16 sm:px-6 lg:px-8">
-        <div className="mb-6 flex items-end justify-between gap-4">
-          <div>
-            <p className="text-sm font-black uppercase text-db-gold">Artículos y guías</p>
-            <h2 className="mt-2 text-3xl font-black text-white">Blog de Los Simpsons</h2>
-          </div>
-          <a href="/blog/" className="focus-ring rounded-md border border-white/10 px-4 py-2 font-bold hover:border-db-gold">
-            Ver todos los artículos
-          </a>
-        </div>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {articles.map((art) => (
-            <a
-              key={art.slug}
-              href={art.path}
-              className="group flex flex-col justify-between rounded-lg border border-white/10 bg-db-panel p-5 transition hover:-translate-y-1 hover:border-db-gold hover:shadow-glow"
-            >
-              <div>
-                <p className="text-xs font-black uppercase text-db-gold">{art.tags?.[0] || "Blog"} • {art.readTime}</p>
-                <h3 className="mt-2 font-black text-white group-hover:text-db-gold">{art.title}</h3>
-                <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-zinc-400">{art.excerpt}</p>
-              </div>
-              <span className="mt-4 inline-block text-xs font-bold text-db-gold">Leer más →</span>
-            </a>
-          ))}
-        </div>
-      </section>
-
-      {/* Editorial Guide & FAQs for Google Authority */}
-      <section className="border-t border-white/10 bg-db-panel py-16">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid gap-12 lg:grid-cols-[1.2fr_0.8fr]">
-            <div>
-              <p className="text-xs font-black uppercase tracking-wider text-db-gold">Guía Completa</p>
-              <h2 className="mt-2 text-3xl font-black text-white">
-                La Guía Definitiva para ver Los Simpsons Online
-              </h2>
-              <div className="mt-6 space-y-4 text-sm leading-7 text-zinc-300">
-                <p>
-                  Creada por <strong>Matt Groening</strong> y desarrollada junto a James L. Brooks y Sam Simon, <strong>Los Simpsons</strong> es la serie de comedia animada más influyente y premiada en la historia de la televisión mundial. Desde su debut en 1989, la familia amarilla de la Avenida Siempreviva 742 ha entretenido a múltiples generaciones con su sátira aguda de la vida cotidiana, la política y la cultura pop.
-                </p>
-                <p>
-                  El catálogo reúne <strong>{episodeCount} fichas de las temporadas 1 a 34</strong>. Puedes recorrerlas en orden, consultar su sinopsis y comprobar si hay una opción de reproducción. Explora también los especiales de Halloween y las guías del blog.
-                </p>
-              </div>
-            </div>
-
-            <div>
-              <p className="text-xs font-black uppercase tracking-wider text-db-gold">Preguntas Frecuentes</p>
-              <h2 className="mt-2 text-3xl font-black text-white">
-                Preguntas frecuentes
-              </h2>
-              <div className="mt-6 space-y-3">
-                {homeFaqs.map((faq, idx) => (
-                  <details
-                    key={idx}
-                    className="group rounded-lg border border-white/10 bg-white/[0.03] p-4 transition open:border-db-gold/40 open:bg-white/[0.06]"
-                  >
-                    <summary className="flex cursor-pointer list-none items-center justify-between text-sm font-bold text-white group-open:text-db-gold">
-                      <span>{faq.q}</span>
-                      <span className="ml-2 transition-transform group-open:rotate-180">▾</span>
-                    </summary>
-                    <p className="mt-2 text-xs leading-relaxed text-zinc-300">
-                      {faq.a}
-                    </p>
-                  </details>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <SiteFooter />
-    </main>
-  );
+    <section className="faq-section shell"><div><span className="eyebrow">ANTES DE DARLE PLAY</span><h2>Por si te lo<br />preguntabas<span>…</span></h2><p>Lo importante, sin letra chiquita.</p></div><div className="faq-list">{faqs.map(f=><details key={f.q}><summary>{f.q}<span aria-hidden="true">+</span></summary><p>{f.a}</p></details>)}</div></section>
+    <SiteFooter />
+  </main>;
 }

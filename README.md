@@ -28,3 +28,17 @@ npm run preview -- 3187
 - `artifacts/` se excluye de Git: puede contener métricas privadas de Search Console y evidencias locales.
 
 Estas mejoras no garantizan posiciones de búsqueda. Search Console permite medir rastreo, selección canónica e impresiones después de que Google vuelva a procesar el sitio.
+
+## Diseño y rendimiento
+
+El diseño usa CSS y tipografías del sistema, sin librerías de animación ni fuentes externas. Los componentes de contenido se renderizan estáticamente; únicamente el buscador y el selector de reproductor usan estado en el navegador.
+
+`scripts/optimize-images.js` genera WebP con variantes de ancho y un manifiesto para `SiteImage`. Los originales se conservan y las imágenes derivadas se regeneran durante `build` y `predev`. `/media/` tiene caché de un año porque sus nombres dependen del contenido original. Todas las imágenes del diseño reservan su relación de aspecto para evitar saltos al cargar.
+
+Pruebas visuales y funcionales en 320, 390, 768 y 1440 px:
+
+```sh
+node scripts/check-design.cjs
+```
+
+Admite las mismas variables de Playwright y `BASE_URL` que el resto de las pruebas. Los informes y capturas quedan en `artifacts/`, fuera de Git.

@@ -28,7 +28,8 @@ function generateFeeds() {
   const now = new Date().toUTCString();
   const isoNow = new Date().toISOString();
 
-  const searchIndex = capitulos.filter(c => c.temporada > 0 && c.temporada < 999).map(({ titulo, tituloLimpio, temporada, numero, slug, url, imagen }) => ({ titulo, tituloLimpio, temporada, numero, slug, url, imagen }));
+  const images = require("../data/image-manifest.json");
+  const searchIndex = capitulos.filter(c => c.temporada > 0 && c.temporada < 999).map(({ titulo, tituloLimpio, temporada, numero, slug, url, imagen, players }) => ({ titulo, tituloLimpio, temporada, numero, slug, url, imagen: images[imagen]?.src || imagen, imageWidth: images[imagen]?.width, imageHeight: images[imagen]?.height, playable: Boolean(players?.length) }));
   fs.writeFileSync(path.join(ROOT, "public", "search-index.json"), JSON.stringify(searchIndex));
   // 1. RSS 2.0
   let rss = `<?xml version="1.0" encoding="UTF-8"?>\n`;

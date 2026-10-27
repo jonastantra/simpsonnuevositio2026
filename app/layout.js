@@ -33,6 +33,7 @@ export const metadata = {
     },
   },
   applicationName: "Los Simpsons Online",
+  icons: { icon: "/icon.svg" },
   referrer: "origin-when-cross-origin",
   manifest: "/manifest.json",
   openGraph: {
@@ -69,8 +70,8 @@ export const metadata = {
 };
 
 export const viewport = {
-  themeColor: "#ffd90f",
-  colorScheme: "dark",
+  themeColor: "#ffdc24",
+  colorScheme: "light",
   width: "device-width",
   initialScale: 1,
 };
@@ -103,7 +104,6 @@ export default function RootLayout({ children }) {
   return (
     <html lang="es-MX">
       <head>
-        <link rel="preconnect" href="https://pagead2.googlesyndication.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://www.googletagmanager.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://mega.nz" />
         <link rel="dns-prefetch" href="https://waaw.to" />

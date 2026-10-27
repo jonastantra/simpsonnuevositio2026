@@ -22,7 +22,7 @@ def run(case):
     try:
         code,h,text=fetch(url);location=h.get('Location') or h.get('location');passed=code==status
         if target:passed &= urljoin(url,location or '')==urljoin(BASE,target)
-        if path=='/':passed &= 'seo-20261027-02' in text and f'href="{ORIGIN}/"' in text
+        if path=='/':passed &= 'design-20261027-01' in text and f'href="{ORIGIN}/"' in text
         if path=='/buscar/?q=bart':passed &= bool(re.search(r'name="robots" content="noindex, follow"',text))
         if path=='/primera-temporada-4-hogar-agridulce-hogar/':passed &= 'noindex, follow' in text
         if path in ['/robots.txt','/sitemap.xml','/video-sitemap.xml','/feed.xml']:passed &= 'simpsonnuevositio2026.vercel.app' not in text

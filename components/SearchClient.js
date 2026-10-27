@@ -1,126 +1,24 @@
 "use client";
-
-
-import { useDeferredValue, useEffect, useMemo, useState } from "react";
-
-const normalizar = (value) =>
-  String(value || "")
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase();
-
-function initialQuery() {
-  if (typeof window === "undefined") return "";
-  return new URLSearchParams(window.location.search).get("q") || "";
-}
-
-export default function SearchClient() {
-  const [query, setQuery] = useState("");
-  const [capitulos, setCapitulos] = useState([]);
-  const [status, setStatus] = useState("loading");
-  const deferredQuery = useDeferredValue(query);
-
-  useEffect(() => {
-    setQuery(initialQuery());
-    const controller = new AbortController();
-    fetch("/search-index.json", { signal: controller.signal }).then(response => {
-      if (!response.ok) throw new Error("No se pudo cargar el catálogo");
-      return response.json();
-    }).then(items => { setCapitulos(items); setStatus("ready"); }).catch(error => { if (error.name !== "AbortError") setStatus("error"); });
-    return () => controller.abort();
-  }, []);
-
-  const indice = useMemo(
-    () =>
-      capitulos
-        .filter((capitulo) => capitulo.temporada && capitulo.temporada !== 999)
-        .map((capitulo) => ({
-          ...capitulo,
-          busqueda: normalizar(
-            `${capitulo.titulo} ${capitulo.tituloLimpio || ""} temporada ${capitulo.temporada} capitulo ${
-              capitulo.numero || ""
-            } ${capitulo.slug}`
-          ),
-        })),
-    [capitulos]
-  );
-
-  const resultados = useMemo(() => {
-    const value = normalizar(deferredQuery.trim());
-    if (!value) return [];
-    const terms = value.split(/\s+/);
-    return indice.filter((capitulo) => terms.every(term => capitulo.busqueda.includes(term))).slice(0, 80);
-  }, [deferredQuery, indice]);
-
-  return (
-    <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-      <label className="relative block">
-        <span className="sr-only">Buscar capitulos</span>
-        <input
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-          placeholder="Ejemplo: temporada 3, Bart, Navidad, capitulo 18..."
-          className="focus-ring h-14 w-full rounded-lg border border-white/10 bg-white px-4 pr-28 text-base font-semibold text-zinc-950 shadow-card placeholder:text-zinc-500"
-          type="search"
-          autoComplete="off"
-          autoFocus
-        />
-        <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 rounded-md bg-db-gold px-3 py-2 text-xs font-black uppercase text-black">
-          {resultados.length}
-        </span>
-      </label>
-
-      <p role="status" className="mt-4 text-sm text-zinc-300">{status === "loading" ? "Cargando catálogo…" : status === "error" ? "No se pudo cargar el buscador. Recarga la página o entra al directorio de temporadas." : `${resultados.length} resultados`}</p>
-      {!query.trim() && (
-        <div className="mt-8 rounded-lg border border-white/10 bg-db-panel p-8 text-center">
-          <p className="text-xl font-black text-white">Escribe para buscar en el catalogo.</p>
-          <p className="mt-2 text-zinc-300">
-            Busca por título, personaje o número de temporada.
-          </p>
-        </div>
-      )}
-
-      {status === "ready" && query.trim() && resultados.length === 0 && (
-        <div className="mt-8 rounded-lg border border-white/10 bg-db-panel p-8 text-center text-zinc-300">
-          No encontre capitulos con esa busqueda.
-        </div>
-      )}
-
-      {resultados.length > 0 && (
-        <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 xl:grid-cols-5">
-          {resultados.map((capitulo, index) => (
-            <a
-              key={capitulo.slug}
-              href={capitulo.url || `/capitulo/${capitulo.slug}/`}
-              className="group overflow-hidden rounded-lg border border-white/10 bg-db-panel2 transition duration-200 hover:-translate-y-1 hover:border-db-gold hover:shadow-glow"
-            >
-              <div className="aspect-video bg-zinc-950">
-                {capitulo.imagen ? (
-                  <img
-                    src={capitulo.imagen}
-                    alt={capitulo.tituloLimpio || capitulo.titulo}
-                    loading={index < 6 ? "eager" : "lazy"}
-                    decoding="async"
-                    className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
-                  />
-                ) : (
-                  <div className="flex h-full items-center justify-center bg-[linear-gradient(135deg,#ffd90f,#0088cc)] px-3 text-center text-xs font-black uppercase text-black">
-                    Los Simpsons Online
-                  </div>
-                )}
-              </div>
-              <div className="p-3">
-                <p className="text-xs font-black uppercase text-db-gold">
-                  T{capitulo.temporada} - E{capitulo.numero}
-                </p>
-                <h2 className="mt-1 line-clamp-2 min-h-10 text-sm font-bold leading-5 text-white">
-                  {capitulo.tituloLimpio || capitulo.titulo}
-                </h2>
-              </div>
-            </a>
-          ))}
-        </div>
-      )}
-    </section>
-  );
+import { useDeferredValue, useEffect, useMemo, useState } from 'react';
+import Icon from './Icon';
+const normalize=value=>String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+export default function SearchClient(){
+  const [query,setQuery]=useState('');
+  const [episodes,setEpisodes]=useState([]);
+  const [status,setStatus]=useState('loading');
+  const deferred=useDeferredValue(query);
+  useEffect(()=>{
+    setQuery(new URLSearchParams(window.location.search).get('q') || '');
+    const controller=new AbortController();
+    fetch('/search-index.json',{signal:controller.signal}).then(r=>{if(!r.ok)throw new Error('No se pudo cargar el catálogo');return r.json()}).then(items=>{setEpisodes(items);setStatus('ready')}).catch(e=>{if(e.name!=='AbortError')setStatus('error')});
+    return()=>controller.abort();
+  },[]);
+  const index=useMemo(()=>episodes.map(e=>({...e,search:normalize(`${e.titulo} ${e.tituloLimpio} temporada ${e.temporada} capitulo ${e.numero} ${e.slug}`)})),[episodes]);
+  const matches=useMemo(()=>{const terms=normalize(deferred.trim()).split(/\s+/);return deferred.trim() ? index.filter(e=>terms.every(t=>e.search.includes(t))) : []},[deferred,index]);
+  function update(value){setQuery(value);const url=new URL(window.location.href);if(value)url.searchParams.set('q',value);else url.searchParams.delete('q');window.history.replaceState(null,'',url.pathname+url.search)}
+  return <section className="shell search-section"><label className="search-label" htmlFor="episode-search">Título, personaje o número de temporada</label><div className="search-input-wrap"><Icon name="search" /><input id="episode-search" type="search" value={query} onChange={e=>update(e.target.value)} placeholder="Ej. Bart, Navidad o temporada 3…" autoComplete="off" /></div><p role="status" aria-live="polite" className="search-status">{status==='loading' ? 'Cargando catálogo…' : status==='error' ? 'No se pudo cargar el catálogo. Intenta recargar la página.' : query.trim() ? `${matches.length} resultados${matches.length>80 ? ' · Mostrando los primeros 80' : ''}` : 'Una pista es suficiente para empezar.'}</p><div className="search-hints" aria-label="Búsquedas sugeridas">{['Bart','Navidad','Temporada 3','La casita del horror'].map(value=><button key={value} type="button" onClick={()=>update(value)}>{value}</button>)}</div>
+    {!query.trim() && <div className="search-empty"><h2>¿Cómo iba ese capítulo?</h2><p>Prueba con un personaje, una palabra del título o una temporada.</p></div>}
+    {status==='ready' && query.trim() && !matches.length && <div className="search-empty"><h2>Por aquí no apareció.</h2><p>Prueba con menos palabras o entra al <a className="text-link" href="/temporadas/">directorio de temporadas</a>.</p></div>}
+    {matches.length>0 && <div className="episode-grid">{matches.slice(0,80).map(e=><a href={e.url} key={e.slug} className="episode-card"><div className="episode-art">{e.imagen && <img src={e.imagen} width={e.imageWidth || 480} height={e.imageHeight || 270} alt={e.tituloLimpio || e.titulo} loading="lazy" decoding="async" />}<span className={`availability ${e.playable ? 'is-playable' : ''}`}>{e.playable ? 'Con reproductor' : 'Solo sinopsis'}</span></div><div className="episode-card-body"><span className="overline">TEMPORADA {e.temporada} · CAPÍTULO {e.numero}</span><h2 style={{fontSize:17,lineHeight:1.25,marginTop:6}}>{e.tituloLimpio || e.titulo}</h2></div></a>)}</div>}
+  </section>;
 }

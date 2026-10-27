@@ -13,3 +13,6 @@ Entradas-Export-*.csv
 
 # Local audit evidence can contain private Search Console metrics.
 artifacts/
+
+# Images are deterministically generated during build.
+public/media/
